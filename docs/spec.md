@@ -1,279 +1,353 @@
-# 仕様書
+# Specification
 
-## 1. 概要
+## 1. Overview
 
-本仕様書は、CSV（Comma-Separated Values）ファイル形式を利用した軽量マークアップ記法について定義します。この記法は、主にHTML（HyperText Markup Language）への変換を目的としています。構造化されたテキストデータをCSV形式で記述し、容易にHTMLコンテンツを生成することを目指します。
+This specification defines a lightweight markup notation using CSV (Comma-Separated Values) or TSV (Tab-Separated Values) file format. This notation is primarily intended for conversion to HTML (HyperText Markup Language). It aims to describe structured text data in CSV/TSV format and easily generate HTML content.
 
-## 2. 基本ルール
+## 2. Basic Rules
 
-### 2.1. ファイル形式
+### 2.1. File Format
 
-- ファイルの拡張子は `.csv` とします。
-- 文字コードはUTF-8を推奨します。
-- CSVの基本的な仕様（RFC 4180等）に準拠します。フィールド内のカンマ `,` やダブルクォーテーション `"` は、CSVのルールに従って適切にエスケープする必要があります。
+- The file extension should be `.csv` or `.tsv`.
+- For CSV files, it complies with basic CSV specifications (such as RFC 4180). Commas `,` and double quotes `"` within fields need to be properly escaped according to CSV rules.
+- For TSV files, it uses tabs as field separators instead of commas. Tabs within fields need to be properly escaped.
 
-### 2.2. カラム構造
+### 2.2. Column Structure
 
-CSVファイルの各行は、以下のカラム構造を持ちます。
+Each row in the CSV/TSV file has the following column structure:
 
-- 1列目: HTMLタグ名（例: h1, p, ul, img）を記述します。
-- 2列目以降: タグによって囲まれる値（コンテンツ）を記述します。テーブル（table, th, td など）のように複数の値を必要とする場合は、3列目、4列目...と続けます。
-- 最終列: HTMLタグに付与する属性を記述します（任意）。
+- 1st column: Specifies the HTML tag name (e.g., h1, p, ul, img).
+- 2nd column onward: Contains the value (content) to be enclosed by the tag. For elements requiring multiple values like tables (table, th, td, etc.), values continue in the 3rd, 4th columns, and so on.
+- Final column: Describes attributes to be applied to the HTML tag (optional).
 
-### 2.3. 属性の記述
+### 2.3. Attribute Description
 
-- 最終列には、HTMLタグの属性を `キー1=値1;キー2=値2` の形式で記述します。
-- 複数の属性はセミコロン `;` で区切ります。
-- 属性の値にセミコロンまたは等号が含まれる場合は、バックスラッシュによってエスケープします。
+- The final column describes HTML tag attributes in the format `key1=value1;key2=value2`.
+- Multiple attributes are separated by semicolons `;`.
+- If an attribute value contains a semicolon or equals sign, it should be escaped with a backslash.
 
-### 2.4. 無効なタグの扱い
+### 2.4. Handling Invalid Tags
 
-- 1列目に指定された値が、本仕様で定義されていない、あるいはHTMLタグとして解釈できない無効なタグ名であった場合、その行はデフォルトで `p` タグ（段落）として扱われます。
+- If a value specified in the 1st column is an invalid tag name (not defined in this specification or cannot be interpreted as an HTML tag), the row is treated as a `p` tag (paragraph) by default.
 
-## 3. ブロック要素
+## 3. Block Elements
 
-ブロックレベル要素は、文書の主要な構造を形成します。
+Block-level elements form the main structure of the document.
 
-### 3.1. 見出し（h1 - h6）
+### 3.1. Headings (h1 - h6)
 
-- タグ: h1, h2, h3, h4, h5, h6
-- 値（2列目）: 見出しのテキストです。
+- Tags: h1, h2, h3, h4, h5, h6
+- Value (2nd column): The heading text.
 
-#### 例1
+#### Aliases
+
+|Alias|Tag|
+|:--|:--|
+|#|h1|
+|##|h2|
+|###|h3|
+|####|h4|
+|#####|h5|
+|######|h6|
+
+#### Example 1
 
 ```csv
-h1,見出し
-h2,見出し
-h6,見出し
+h1,Heading
+h2,Heading
+h6,Heading
+```
+
+または
+
+```tsv
+h1	Heading
+h2	Heading
+h6	Heading
 ```
 
 ```html
-<h1>見出し</h1>
-<h2>見出し</h2>
-<h6>見出し</h6>
+<h1>Heading</h1>
+<h2>Heading</h2>
+<h6>Heading</h6>
 ```
 
-### 3.2. 段落（p）
+### 3.2. Paragraphs (p)
 
-- タグ: p
-- 値（2列目）: 段落のテキストです。
-- 連続する `p` タグ: 同一 `<p>` タグ内で `<br />` による改行として扱われます。
-- 段落の分割: 新しい段落を開始するには、CSVファイル内に空行を挿入します。
+- Tag: p
+- Value (2nd column): The paragraph text.
+- Consecutive `p` tags: Treated as line breaks using `<br />` within the same `<p>` tag.
+- Paragraph separation: To start a new paragraph, insert an empty line in the CSV file.
 
-#### 例1
+#### Example 1
 
 ```csv
-p,段落です。
+p,This is a paragraph.
+```
+
+または
+
+```tsv
+p	This is a paragraph.
 ```
 
 ```html
-<p>段落です。</p>
+<p>This is a paragraph.</p>
 ```
 
-#### 例2
+#### Example 2
 
 ```csv
-p,段落の最初の行です。
-p,2行目です。
+p,This is the first line of the paragraph.
+p,This is the second line.
+```
+
+または
+
+```tsv
+p	This is the first line of the paragraph.
+p	This is the second line.
 ```
 
 ```html
 <p>
-    段落の最初の行です。
+    This is the first line of the paragraph.
     <br />
-    2行目です。
+    This is the second line.
 </p>
 ```
 
-#### 例3
+#### Example 3
 
 ```csv
-p,最初の段落です。
+p,This is the first paragraph.
 
-p,2つ目の段落です。
+p,This is the second paragraph.
+```
+
+または
+
+```tsv
+p	This is the first paragraph.
+
+p	This is the second paragraph.
 ```
 
 ```html
-<p>最初の段落です。</p>
+<p>This is the first paragraph.</p>
 
-<p>2つ目の段落です。</p>
+<p>This is the second paragraph.</p>
 ```
 
-### 3.3. リンク（a）
+### 3.3. Links (a)
 
-- タグ: a
-- 値（2列目）: リンクとして表示されるテキストです。
-- 属性（最終列）: `href` 属性は必須です。その他 `target` , `title` など任意の属性を指定可能です。
-- ブロックとしての扱い: 単独行で `a` タグが使用された場合、 `<p>` タグで囲まれます。
+- Tag: a
+- Value (2nd column): The text to be displayed as the link.
+- Attributes (final column): The `href` attribute is required. Other attributes such as `target`, `title`, etc. can be specified as needed.
+- Treatment as a block: When an `a` tag is used as a standalone line, it is enclosed in a `<p>` tag.
 
-#### 例1
+#### Example 1
 
 ```csv
-a,参考資料,href=https://example.com/reference;target=_blank
+a,Reference material,href=https://example.com/reference;target=_blank
+```
+
+または
+
+```tsv
+a	Reference material	href=https://example.com/reference;target=_blank
 ```
 
 ```html
-<p><a href="https://example.com/reference" target="_blank">参考資料</a></p>
+<p><a href="https://example.com/reference" target="_blank">Reference material</a></p>
 ```
 
-### 3.4. 画像（img）
+### 3.4. Images (img)
 
-- タグ: img
-- 値（2列目）: 画像の代替テキスト（ `alt` 属性の値）です。
-- 属性（最終列）: `src` 属性は必須です。その他 `width` , `height` など任意の属性を指定可能です。
-- `alt` 属性の優先度: 最終列の属性にも `alt` が指定されている場合、2列目の値が優先されます。
-- ブロックとしての扱い: 単独行で `img` タグが使用された場合、 `<p>` タグで囲まれます。
+- Tag: img
+- Value (2nd column): Alternative text for the image (value for the `alt` attribute).
+- Attributes (final column): The `src` attribute is required. Other attributes such as `width`, `height`, etc. can be specified as needed.
+- `alt` attribute priority: If the `alt` attribute is also specified in the final column attributes, the value in the 2nd column takes precedence.
+- Treatment as a block: When an `img` tag is used as a standalone line, it is enclosed in a `<p>` tag.
 
-#### 例1
+#### Example 1
 
 ```csv
 img,car,src=car.jpg;alt=train
+```
+
+または
+
+```tsv
+img	car	src=car.jpg;alt=train
 ```
 
 ```html
 <p><img src="car.jpg" alt="car" /></p>
 ```
 
-### 3.5. リスト（ul, ol, li）
+### 3.5. Lists (ul, ol, li)
 
-- タグ:
-    - ul, li: 順序なしリスト（ `<ul>` ）を生成します。どちらのタグも同様に扱われ、リスト項目（ `<li>` ）を作成します。
-    - ol: 順序付きリスト（ `<ol>` ）を生成し、リスト項目（ `<li>` ）を作成します。
-- 値（2列目）: リスト項目の内容です。
-- 階層構造: タグ名の前に `>` を付与することでリストのネスト（入れ子）を表現します。 `>` の数で階層の深さを示します。
+- Tags:
+    - ul, li: Generate an unordered list (`<ul>`). Both tags are treated similarly and create list items (`<li>`).
+    - ol: Generates an ordered list (`<ol>`) and creates list items (`<li>`).
+- Value (2nd column): The content of the list item.
+- Hierarchical structure: Adding dots `.` before the tag name expresses nested lists. The number of dots indicates the depth of the hierarchy.
 
-#### 例1
+#### Aliases
+
+|Alias|Tag|
+|:--|:--|
+|-|ul|
+|*|ul|
+|+|ul|
+|1|ol|
+
+#### Example 1
 
 ```csv
-ul,項目1
-ul,項目2
-ul,項目3
+ul,Item 1
+ul,Item 2
+ul,Item 3
 ```
 
 ```html
 <ul>
-    <li>項目1</li>
-    <li>項目2</li>
-    <li>項目3</li>
+    <li>Item 1</li>
+    <li>Item 2</li>
+    <li>Item 3</li>
 </ul>
 ```
 
-#### 例2
+#### Example 2
 
 ```csv
-ol,項目1
-ol,項目2
-ol,項目3
+ol,Item 1
+ol,Item 2
+ol,Item 3
 ```
 
 ```html
 <ol>
-    <li>項目1</li>
-    <li>項目2</li>
-    <li>項目3</li>
+    <li>Item 1</li>
+    <li>Item 2</li>
+    <li>Item 3</li>
 </ol>
 ```
 
-#### 例3
+#### Example 3
 
 ```csv
-li,項目1
-li,項目2
-li,項目3
+li,Item 1
+li,Item 2
+li,Item 3
 ```
 
 ```html
 <ul>
-    <li>項目1</li>
-    <li>項目2</li>
-    <li>項目3</li>
+    <li>Item 1</li>
+    <li>Item 2</li>
+    <li>Item 3</li>
 </ul>
 ```
 
-#### 例4
+#### Example 4
 
 ```csv
-ul,項目1
-li,項目2
-li,項目3
+ul,Item 1
+li,Item 2
+li,Item 3
 ```
 
 ```html
 <ul>
-    <li>項目1</li>
-    <li>項目2</li>
-    <li>項目3</li>
+    <li>Item 1</li>
+    <li>Item 2</li>
+    <li>Item 3</li>
 </ul>
 ```
 
-#### 例5
+#### Example 5
 
 ```csv
-ul,項目1
->ul,項目1-1
->ul,項目1-2
->>ul,項目1-2-1
-ul,項目2
-```
-
-```html
-<ul>
-    <li>
-        項目1
-        <ul>
-            <li>項目1-1</li>
-            <li>項目1-2
-                <ul>
-                    <li>項目1-2-1</li>
-                </ul>
-            </li>
-        </ul>
-    </li>
-    <li>項目2</li>
-</ul>
-```
-
-#### 例6
-
-```csv
-li,項目1
->li,項目1-1
->li,項目1-2
->>li,項目1-2-1
-li,項目2
+ul,Item 1
+.ul,Item 1-1
+.ul,Item 1-2
+..ul,Item 1-2-1
+ul,Item 2
 ```
 
 ```html
 <ul>
     <li>
-        項目1
+        Item 1
         <ul>
-            <li>項目1-1</li>
-            <li>項目1-2
+            <li>Item 1-1</li>
+            <li>Item 1-2
                 <ul>
-                    <li>項目1-2-1</li>
+                    <li>Item 1-2-1</li>
                 </ul>
             </li>
         </ul>
     </li>
-    <li>項目2</li>
+    <li>Item 2</li>
 </ul>
 ```
 
-### 3.6. テーブル（table, thead, tbody, th, td）
+#### Example 6
 
-- タグ:
-    - table, tbody, td: これらは同様にテーブル本体（ `<tbody>` ）内の行（ `<tr>` ）とデータセル（ `<td>` ）を生成するものとして扱われます。連続するこれらのタグは、同じ `<tbody>` 内の行を構成します。
-    - th: テーブル本体（ `<tbody>` ）内の行（ `<tr>` ）とテーブルヘッダーセル（ `<th>` ）を生成します。
-    - thead: テーブルヘッダー（ `<thead>` ）内の行（ `<tr>` ）とヘッダーセル（ `<th>` ）を生成します。
-- 値（2列目以降）: 各セルの内容です。
-- カラム数の調整: 各行（CSVの行）で値の数（列数）が異なる場合、生成されるHTMLテーブルでは、そのテーブル内で最も列数が多い行に合わせて、不足しているセルは空のセルとして補完されます。
+```csv
+li,Item 1
+.li,Item 1-1
+.li,Item 1-2
+..li,Item 1-2-1
+li,Item 2
+```
 
-#### 例1
+```html
+<ul>
+    <li>
+        Item 1
+        <ul>
+            <li>Item 1-1</li>
+            <li>Item 1-2
+                <ul>
+                    <li>Item 1-2-1</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Item 2</li>
+</ul>
+```
+
+### 3.6. Tables (table, thead, tbody, th, td)
+
+- Tags:
+    - table, tbody, td: These are treated as generating table body (`<tbody>`), rows (`<tr>`), and data cells (`<td>`). Consecutive occurrences of these tags form rows within the same `<tbody>`.
+    - th: Generates rows (`<tr>`) and table header cells (`<th>`) within the table body (`<tbody>`).
+    - thead: Generates rows (`<tr>`) and header cells (`<th>`) within the table header (`<thead>`).
+- Values (2nd column onward): The content of each cell.
+- Column adjustment: If the number of values (columns) differs between rows (CSV rows), the generated HTML table will compensate by adding empty cells to match the row with the most columns in that table.
+
+#### Aliases
+
+|Alias|Tag|
+|:--|:--|
+|\||table|
+
+#### Example 1
 
 ```csv
 table,John,Doe
 table,Jane,Doe
+```
+
+または
+
+```tsv
+table	John	Doe
+table	Jane	Doe
 ```
 
 ```html
@@ -291,7 +365,7 @@ table,Jane,Doe
 </table>
 ```
 
-#### 例2
+#### Example 2
 
 ```csv
 tbody,John,Doe
@@ -313,7 +387,7 @@ tbody,Jane,Doe
 </table>
 ```
 
-#### 例3
+#### Example 3
 
 ```csv
 td,John,Doe
@@ -335,7 +409,7 @@ td,Jane,Doe
 </table>
 ```
 
-#### 例4
+#### Example 4
 
 ```csv
 th,First name,Last name
@@ -362,7 +436,7 @@ td,Jane,Doe
 </table>
 ```
 
-#### 例5
+#### Example 5
 
 ```csv
 thead,First name,Last name
@@ -391,7 +465,7 @@ tbody,Jane,Doe
 </table>
 ```
 
-#### 例6
+#### Example 6
 
 ```csv
 thead,First name,Last name
@@ -420,20 +494,35 @@ td,Jane,Doe
 </table>
 ```
 
-### 3.7. コードブロック（code）
+### 3.7. Code Blocks (code)
 
-- タグ: code
-- 値（2列目）: コードの断片です。
-- 連続する `code` タグ: 同一の `<pre><code>...</code></pre>` ブロック内の改行として扱われます。
-- 言語指定: 連続する `code` 行のいずれかの最終列に `language=言語名` 形式で属性を指定することで、シンタックスハイライト用のクラスが付与されます（例: `class="language-javascript"` )。同一ブロック内で複数回指定する必要はありません。
+- Tag: code
+- Value (2nd column): The code fragment.
+- Consecutive `code` tags: Treated as line breaks within the same `<pre><code>...</code></pre>` block.
+- Language specification: By specifying an attribute in the format `language=language_name` in the final column of any of the consecutive `code` lines, a class for syntax highlighting is added (e.g., `class="language-javascript"`). It doesn't need to be specified multiple times within the same block.
 
-#### 例1
+#### Aliases
+
+|Alias|Tag|
+|:--|:--|
+|```|code|
+
+#### Example 1
 
 ```csv
 code,"const message = ""Hello, world!"";",language=javascript
-code,"funciton hello() {"
+code,"function hello() {"
 code,"  console.log(message);"
 code,"}"
+```
+
+または
+
+```tsv
+code	"const message = ""Hello, world!"";"	language=javascript
+code	"function hello() {"
+code	"  console.log(message);"
+code	"}"
 ```
 
 ```html
@@ -443,73 +532,60 @@ code,"}"
   }</code></pre>
 ```
 
-### 3.8. 引用（blockquote）
-
-- タグ: blockquote
-- 値（2列目）: 引用文です。
-- 連続する `blockquote` タグ: 同一の `<blockquote>` 要素内で、それぞれが `<p>` タグで囲まれた段落として扱われます。`<br />` による改行は挿入されません。
-- 階層構造: タグ名の前に `>` を付与することで引用のネストを表現します。
-
-#### 例1
+### Example 1
 
 ```csv
-blockquote,引用です。
-blockquote,引用です。
->blockquote,引用です。
+p,This is **important** text that includes a `code` snippet. For details, refer to [this link](https://example.com).
+```
+
+または
+
+```tsv
+p	This is **important** text that includes a `code` snippet. For details, refer to [this link](https://example.com).
+```
+
+```html
+<p>This is <strong>important</strong> text that includes a <code>code</code> snippet. For details, refer to <a href="https://example.com">this link</a>.</p>
+```
+
+#### Example 2
+
+```csv
+blockquote,This is a quote.
+blockquote,This is a quote.
+.blockquote,This is a quote.
+```
+
+または
+
+```tsv
+blockquote	This is a quote.
+blockquote	This is a quote.
+.blockquote	This is a quote.
 ```
 
 ```html
 <blockquote>
-    <p>引用です。</p>
-    <p>引用です。</p>
+    <p>This is a quote.</p>
+    <p>This is a quote.</p>
     <blockquote>
-        <p>引用です。</p>
+        <p>This is a quote.</p>
     </blockquote>
 </blockquote>
 ```
 
-### 3.9. 水平線（hr）
-
-- タグ: hr
-- 値/属性: 不要です。
-- 出力: `<hr />` タグが生成されます。
-
-#### 例1
+#### Example 1
 
 ```csv
+hr
+```
+
+または
+
+```tsv
 hr
 ```
 
 ```html
 <hr />
 ```
-
-## 4. インライン要素
-
-ブロック要素の値（主に2列目の内容）は、HTMLへの変換時に二次的にパースされ、インライン要素が解釈されます。このパース処理は、 [GitHub Flavored Markdown（GFM）Spec のインライン要素のルール](https://github.github.com/gfm/#inlines) に準拠することを推奨します。
-
-これにより、以下のようなMarkdownライクな記法が値の中で利用可能になります。
-
-- 強調: `*イタリック*` または `_イタリック_` （ `<em>` ）、 `**太字**` または `__太字__` （ `<strong>` ）
-- コードスパン: バックティックで囲われた部分（ `<code>` ）
-- 打ち消し線: `~~打ち消し~~` （ `<del>` ）
-- インラインリンク: `[リンクテキスト](URL "タイトル")` （ `<a>` ）
-- インライン画像: `![代替テキスト](画像URL "タイトル")` （ `<img>` ）
-
-### 例1
-
-```csv
-p,これは **重要** なテキストで、 `code` スニペットを含みます。詳細は [こちら](https://example.com）を参照してください。
-```
-
-```html
-<p>これは<strong>重要</strong> なテキストで、 <code>code</code> スニペットを含みます。詳細は <a href="https://example.com"\こちら</a> を参照してください。</p>
-```
-
-注意: ブロックレベルのリンク（a）や画像（img）タグと、インラインのリンク・画像記法の両方が存在します。ブロックレベルはCSVの行として定義し、インラインは他の要素の値の中でMarkdown形式で記述します。
-
-## 5. 実装に関する注意点
-
-- CSVパーサーは、ダブルクォーテーションで囲まれたフィールド内のカンマや改行を正しく処理できる必要があります。
-- ネスト構造（リスト、引用）の深さに制限を設けるか、再帰的な処理を適切に行う必要があります。
-- テーブルのカラム数不一致の扱いや、属性値のエスケープなど、細かな挙動は実装に依存する可能性があります。

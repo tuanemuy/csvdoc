@@ -49,6 +49,8 @@ console.log(tsvHtml); // <h1>Title</h1><p>description</p>
 
 ## Examples
 
+### CSVDoc
+
 ```csv
 #,Syntax Examples
 
@@ -68,6 +70,8 @@ console.log(tsvHtml); // <h1>Title</h1><p>description</p>
 |,Smith,28,Engineer
 |,Johnson,34,Designer
 ```
+
+### TSVDoc
 
 ```tsv
 #	Syntax Examples

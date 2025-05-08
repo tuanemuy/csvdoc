@@ -1,5 +1,4 @@
 import { parse } from "../index.ts";
-import { assertEquals } from "@std/assert";
 import { assertHTMLEquals } from "./utils.ts";
 
 Deno.test("順序なしリスト(ul)のパース", () => {

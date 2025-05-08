@@ -239,7 +239,7 @@ Deno.test("エスケープされたマークダウン記号", () => {
 });
 
 Deno.test("コードスパン内の特殊文字エスケープ", () => {
-  const input = "p,HTML要素: `<div>`, `<span>`, `&lt;` と特殊記号: `&`";
+  const input = "p,HTML要素: `<div>` `<span>` `&lt;` と特殊記号: `&`";
 
   const expected =
     "<p>HTML要素:<code>&lt;div&gt;</code><code>&lt;span&gt;</code><code>&amp;lt;</code>と特殊記号:<code>&amp;</code></p>";

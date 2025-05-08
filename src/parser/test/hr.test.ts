@@ -22,7 +22,7 @@ p,段落2`;
 });
 
 Deno.test("水平線要素に属性を付与", () => {
-  const input = "hr,class=divider;style=margin: 2em 0";
+  const input = "hr,,class=divider;style=margin: 2em 0";
 
   const expected = `<hr class="divider" style="margin: 2em 0" />`;
 
@@ -36,9 +36,7 @@ Deno.test("連続する水平線要素", () => {
 hr
 hr`;
 
-  const expected = `<hr />
-<hr />
-<hr />`;
+  const expected = "<hr /><hr /><hr />";
 
   assertHTMLEquals(parse(input), expected);
 });
@@ -54,7 +52,7 @@ Deno.test("水平線要素に不必要な値を指定した場合", () => {
 });
 
 Deno.test("水平線要素に空の属性を指定した場合", () => {
-  const input = "hr,class=;id=;data-empty=";
+  const input = "hr,,class=;id=;data-empty=";
 
   // 空の属性値をテスト
   const expected = `<hr class="" id="" data-empty="" />`;
@@ -64,7 +62,7 @@ Deno.test("水平線要素に空の属性を指定した場合", () => {
 
 Deno.test("水平線要素に複数の属性を指定した場合", () => {
   const input =
-    "hr,id=separator;class=divider section-break;data-role=spacer;style=margin: 2em 0";
+    "hr,,id=separator;class=divider section-break;data-role=spacer;style=margin: 2em 0";
 
   const expected = `<hr id="separator" class="divider section-break" data-role="spacer" style="margin: 2em 0" />`;
 
@@ -72,7 +70,7 @@ Deno.test("水平線要素に複数の属性を指定した場合", () => {
 });
 
 Deno.test("水平線要素の属性値にエスケープされた特殊文字を含む場合", () => {
-  const input = "hr,data-value=key\\=value\\;another";
+  const input = "hr,,data-value=key\\=value\\;another";
 
   const expected = `<hr data-value="key=value;another" />`;
 
@@ -85,7 +83,7 @@ Deno.test("非常に多くの属性を持つ水平線要素", () => {
     { length: 15 },
     (_, i) => `attr${i}=value${i}`,
   ).join(";");
-  const input = `hr,${attributes}`;
+  const input = `hr,,${attributes}`;
 
   // 期待する出力を生成
   const expectedAttrs = Array.from(
@@ -111,7 +109,7 @@ hr`;
 Deno.test("水平線要素と他の要素が混在する複雑な構造", () => {
   const input = `h1,タイトル
 p,段落1
-hr,class=section-break
+hr,,class=section-break
 h2,サブタイトル
 p,段落2
 hr
@@ -131,7 +129,7 @@ ul,リスト項目`;
 });
 
 Deno.test("名前のみの属性（値なし）を持つ水平線要素", () => {
-  const input = "hr,disabled;readonly";
+  const input = "hr,,disabled;readonly";
 
   // 現在の実装では値のない属性は無視されるか、値と同じ名前が設定される
   // 実際の出力に合わせて期待値を設定
@@ -183,7 +181,7 @@ p,段落`;
 });
 
 Deno.test("スタイル属性に複雑なCSSを含む水平線", () => {
-  const input = "hr,style=border: 1px solid #ccc";
+  const input = "hr,,style=border: 1px solid #ccc";
 
   const expected = `<hr style="border: 1px solid #ccc" />`;
 
@@ -191,7 +189,7 @@ Deno.test("スタイル属性に複雑なCSSを含む水平線", () => {
 });
 
 Deno.test("アスタリスクなどの特殊文字を含む属性値", () => {
-  const input = "hr,data-pattern=*pattern*;title=This is a ** separator **";
+  const input = "hr,,data-pattern=*pattern*;title=This is a ** separator **";
 
   const expected = `<hr data-pattern="*pattern*" title="This is a ** separator **" />`;
 
@@ -199,7 +197,7 @@ Deno.test("アスタリスクなどの特殊文字を含む属性値", () => {
 });
 
 Deno.test("非ASCII文字（日本語など）を含む属性値", () => {
-  const input = "hr,title=区切り線;data-info=セクション間の仕切り";
+  const input = "hr,,title=区切り線;data-info=セクション間の仕切り";
 
   const expected = `<hr title="区切り線" data-info="セクション間の仕切り" />`;
 

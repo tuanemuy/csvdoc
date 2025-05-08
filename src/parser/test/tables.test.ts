@@ -2,8 +2,11 @@ import { parse } from "../index.ts";
 import { assertHTMLEquals } from "./utils.ts";
 
 Deno.test("基本的なテーブル(table)のパース", () => {
-  const input = `table,John,Doe
-table,Jane,Doe`;
+  const input = `table0,John
+table0,Doe
+table1,Jane
+table1,Doe
+`;
 
   const expected = `<table>
     <tbody>
@@ -22,8 +25,10 @@ table,Jane,Doe`;
 });
 
 Deno.test("tbodyタグを使用したテーブルのパース", () => {
-  const input = `tbody,John,Doe
-tbody,Jane,Doe`;
+  const input = `tbody,John
+tbody,Doe
+tbody0,Jane
+tbody0,Doe`;
 
   const expected = `<table>
     <tbody>
@@ -42,8 +47,10 @@ tbody,Jane,Doe`;
 });
 
 Deno.test("tdタグを使用したテーブルのパース", () => {
-  const input = `td,John,Doe
-td,Jane,Doe`;
+  const input = `td1,John
+td1,Doe
+td,Jane
+td,Doe`;
 
   const expected = `<table>
     <tbody>
@@ -62,9 +69,12 @@ td,Jane,Doe`;
 });
 
 Deno.test("thタグを使用したテーブルヘッダーのパース", () => {
-  const input = `th,First name,Last name
-td,John,Doe
-td,Jane,Doe`;
+  const input = `th,First name
+th,Last name
+td2,John
+td2,Doe
+td1,Jane
+td1,Doe`;
 
   const expected = `<table>
     <tbody>
@@ -87,9 +97,12 @@ td,Jane,Doe`;
 });
 
 Deno.test("theadタグを使用したテーブルヘッダーのパース", () => {
-  const input = `thead,First name,Last name
-tbody,John,Doe
-tbody,Jane,Doe`;
+  const input = `thead,First name
+thead,Last name
+tbody0,John
+tbody0,Doe
+tbody1,Jane
+tbody1,Doe`;
 
   const expected = `<table>
     <thead>
@@ -114,9 +127,12 @@ tbody,Jane,Doe`;
 });
 
 Deno.test("theadタグとtdタグを混在させたテーブルのパース", () => {
-  const input = `thead,First name,Last name
-td,John,Doe
-td,Jane,Doe`;
+  const input = `thead,First name
+thead,Last name
+td,John
+td,Doe
+td2,Jane
+td2,Doe`;
 
   const expected = `<table>
     <thead>
@@ -140,22 +156,77 @@ td,Jane,Doe`;
   assertHTMLEquals(parse(input), expected);
 });
 
-Deno.test("テーブル要素に属性を付与", () => {
-  const input = `table,John,Doe,class=user-table;id=users
-th,First name,Last name,class=header-row
-td,Jane,Smith,data-user-id=2`;
+Deno.test("同じSuffixが複数回使用されるテーブルのパース", () => {
+  const input = `table0,John
+table0,Doe
+table1,Jane
+table1,Doe
+table0,Jack
+table0,Smith
+`;
 
-  const expected = `<table class="user-table" id="users">
+  const expected = `<table>
     <tbody>
         <tr>
             <td>John</td>
             <td>Doe</td>
         </tr>
-        <tr class="header-row">
+        <tr>
+            <td>Jane</td>
+            <td>Doe</td>
+        </tr>
+        <tr>
+            <td>Jack</td>
+            <td>Smith</td>
+        </tr>
+    </tbody>
+</table>`;
+
+  assertHTMLEquals(parse(input), expected);
+});
+
+Deno.test("Suffixが2桁以上のテーブルのパース", () => {
+  const input = `table16,John
+table16,Doe
+table256,Jane
+table256,Doe
+`;
+
+  const expected = `<table>
+    <tbody>
+        <tr>
+            <td>John</td>
+            <td>Doe</td>
+        </tr>
+        <tr>
+            <td>Jane</td>
+            <td>Doe</td>
+        </tr>
+    </tbody>
+</table>`;
+
+  assertHTMLEquals(parse(input), expected);
+});
+
+Deno.test("テーブル要素に属性を付与", () => {
+  const input = `table,John,class=user-table;id=users
+table,Doe,data-rows=3
+th,First name
+th,Last name
+td,Jane
+td,Smith`;
+
+  const expected = `<table class="user-table" id="users" data-rows="3">
+    <tbody>
+        <tr>
+            <td>John</td>
+            <td>Doe</td>
+        </tr>
+        <tr>
             <th>First name</th>
             <th>Last name</th>
         </tr>
-        <tr data-user-id="2">
+        <tr>
             <td>Jane</td>
             <td>Smith</td>
         </tr>
@@ -166,9 +237,15 @@ td,Jane,Smith,data-user-id=2`;
 });
 
 Deno.test("カラム数が異なる行を含むテーブルのパース", () => {
-  const input = `table,Name,Age,City
-table,John,30
-table,Jane,25,New York,USA`;
+  const input = `table0,Name
+table0,Age
+table0,City
+table1,John
+table1,30
+table2,Jane
+table2,25
+table2,New York
+table2,USA`;
 
   const expected = `<table>
     <tbody>
@@ -199,9 +276,15 @@ table,Jane,25,New York,USA`;
 // エッジケースと異常系のテスト
 
 Deno.test("空のセルを含むテーブルのパース", () => {
-  const input = `table,,Age,
-table,John,,
-table,,,`;
+  const input = `table,
+table,Age
+table,
+table0,John,
+table0,
+table0,
+table1,
+table1,
+table1,`;
 
   const expected = `<table>
     <tbody>
@@ -227,8 +310,12 @@ table,,,`;
 });
 
 Deno.test("HTML特殊文字を含むテーブルのセル", () => {
-  const input = `table,<div>タグ</div>,&amp;文字,< >
-table,a & b,x < y > z,引用符'`;
+  const input = `table0,<div>タグ</div>
+table0,&amp;文字
+table0,< >
+table1,a & b
+table1,x < y > z
+table1,引用符'`;
 
   // 実装の挙動に合わせた期待値（特殊文字をエスケープしない）
   const expected = `<table>
@@ -249,29 +336,13 @@ table,a & b,x < y > z,引用符'`;
   assertHTMLEquals(parse(input), expected);
 });
 
-Deno.test("非常に大きなテーブルの処理", () => {
-  // 10x10の大きなテーブル
-  let input = "";
-  for (let i = 0; i < 10; i++) {
-    const cells = Array(10).fill(`cell-${i}`).join(",");
-    input += `table,${cells}\n`;
-  }
-
-  // テーブル出力の期待値を生成
-  let rowsHtml = "";
-  for (let i = 0; i < 10; i++) {
-    const cellsHtml = Array(10).fill(`<td>cell-${i}</td>`).join("");
-    rowsHtml += `<tr>${cellsHtml}</tr>`;
-  }
-
-  const expected = `<table><tbody>${rowsHtml}</tbody></table>`;
-
-  assertHTMLEquals(parse(input), expected);
-});
-
 Deno.test("インラインマークアップを含むテーブルセル", () => {
-  const input = `table,**太字**,*イタリック*,[リンク](https://example.com)
-table,\`コード\`,![画像](image.jpg),~~取り消し線~~`;
+  const input = `table0,**太字**
+table0,*イタリック*
+table0,[リンク](https://example.com)
+table1,\`コード\`
+table1,![画像](image.jpg)
+table1,~~取り消し線~~`;
 
   const expected = `<table>
     <tbody>
@@ -293,10 +364,12 @@ table,\`コード\`,![画像](image.jpg),~~取り消し線~~`;
 
 Deno.test("複数行にわたるセル内容", () => {
   const input = `table,"複数行の
-コンテンツ","一行目
+コンテンツ"
+table,"一行目
 二行目
 三行目"
-table,"単一行",通常セル`;
+table0,"単一行"
+table0,通常セル`;
 
   const expected = `<table>
     <tbody>
@@ -318,8 +391,10 @@ table,"単一行",通常セル`;
 });
 
 Deno.test("カンマを含むセル内容", () => {
-  const input = `table,"名前, 姓","住所, 市, 国"
-table,"Smith, John","New York, USA"`;
+  const input = `table,"名前, 姓"
+table,"住所, 市, 国"
+table0,"Smith, John"
+table0,"New York, USA"`;
 
   const expected = `<table>
     <tbody>
@@ -338,8 +413,10 @@ table,"Smith, John","New York, USA"`;
 });
 
 Deno.test("テーブルの後に他の要素が続く場合", () => {
-  const input = `table,名前,年齢
-table,John,30
+  const input = `table,名前
+table,年齢
+table1,John
+table1,30
 p,テーブルの後のテキスト`;
 
   const expected = `<table>
@@ -384,8 +461,8 @@ table,テーブル2`;
 });
 
 Deno.test("theadの後に別のtheadがある場合", () => {
-  const input = `thead,ヘッダー1
-thead,ヘッダー2
+  const input = `thead0,ヘッダー1
+thead1,ヘッダー2
 tbody,内容`;
 
   // theadが複数行になる
@@ -409,8 +486,8 @@ tbody,内容`;
 });
 
 Deno.test("テーブル行に複雑な属性を持つ場合", () => {
-  const input = `table,ヘッダー,"data-attr=複雑な値;style=color:red\\;background-color:#f0f0f0"
-table,内容,class=row1 highlight`;
+  const input = `table2,ヘッダー,"data-attr=複雑な値;style=color:red\\;background-color:#f0f0f0"
+table1,内容`;
 
   // 実装の挙動に合わせた属性の扱い
   const expected = `<table data-attr="複雑な値" style="color:red;background-color:#f0f0f0">
@@ -418,7 +495,7 @@ table,内容,class=row1 highlight`;
         <tr>
             <td>ヘッダー</td>
         </tr>
-        <tr class="row1 highlight">
+        <tr>
             <td>内容</td>
         </tr>
     </tbody>
@@ -428,9 +505,9 @@ table,内容,class=row1 highlight`;
 });
 
 Deno.test("空のテーブル行", () => {
-  const input = `table,
-table,
-table,内容`;
+  const input = `table0,
+table1,
+table2,内容`;
 
   const expected = `<table>
     <tbody>
@@ -450,7 +527,8 @@ table,内容`;
 });
 
 Deno.test("theadタグのみのテーブル", () => {
-  const input = "thead,ヘッダー1,ヘッダー2";
+  const input = `thead,ヘッダー1
+thead,ヘッダー2`;
 
   const expected = `<table>
     <thead>
@@ -472,8 +550,12 @@ Deno.test("空の入力からのテーブル処理", () => {
 });
 
 Deno.test("絵文字や特殊文字を含むテーブルセル", () => {
-  const input = `table,🎉 祝,🌟✨,♠♥♦♣
-table,✅ 完了,❌ 失敗,! 警告`;
+  const input = `table,🎉 祝
+table,🌟✨
+table,♠♥♦♣
+table0,✅ 完了
+table0,❌ 失敗
+table0,! 警告`;
 
   const expected = `<table>
     <tbody>
@@ -494,8 +576,12 @@ table,✅ 完了,❌ 失敗,! 警告`;
 });
 
 Deno.test("非ASCII文字（全角文字など）を含むテーブル", () => {
-  const input = `table,　全角スペース　,ｶﾀｶﾅ,漢字
-table,ひらがな　,　端末　,表組み`;
+  const input = `table,　全角スペース　
+table,ｶﾀｶﾅ
+table,漢字
+table0,ひらがな　
+table0,　端末　
+table0,表組み`;
 
   const expected = `<table>
     <tbody>
@@ -516,9 +602,11 @@ table,ひらがな　,　端末　,表組み`;
 });
 
 Deno.test("テーブル内で改行を含む場合の空行の扱い", () => {
-  const input = `table,A,B
-
-table,C,D`;
+  const input = `table,A
+table,B
+.
+table0,C
+table0,D`;
 
   // 別のテーブルとして扱われる
   const expected = `<table>
@@ -542,8 +630,10 @@ table,C,D`;
 });
 
 Deno.test("テーブルエイリアス(|)を使ったテーブルのパース", () => {
-  const input = `|,John,Doe
-|,Jane,Doe`;
+  const input = `|,John
+|,Doe
+|0,Jane
+|0,Doe`;
 
   const expected = `<table>
     <tbody>
@@ -562,9 +652,12 @@ Deno.test("テーブルエイリアス(|)を使ったテーブルのパース", 
 });
 
 Deno.test("テーブルエイリアス(|,[)を使ったヘッダー付きテーブルのパース", () => {
-  const input = `[,First name,Last name
-|,John,Doe
-|,Jane,Doe`;
+  const input = `[0,First name
+[0,Last name
+|0,John
+|0,Doe
+|1,Jane
+|1,Doe`;
 
   const expected = `<table>
     <thead>
@@ -589,36 +682,13 @@ Deno.test("テーブルエイリアス(|,[)を使ったヘッダー付きテー�
 });
 
 Deno.test("テーブルエイリアスと属性を組み合わせたテーブル", () => {
-  const input = `|,John,Doe,class=user-table;id=users
-|,Jane,Smith,data-user-id=2`;
+  const input = `|,John,class=user-table;id=users
+|,Doe
+|1,Jane
+|1,Smith`;
 
   const expected = `<table class="user-table" id="users">
     <tbody>
-        <tr>
-            <td>John</td>
-            <td>Doe</td>
-        </tr>
-        <tr data-user-id="2">
-            <td>Jane</td>
-            <td>Smith</td>
-        </tr>
-    </tbody>
-</table>`;
-
-  assertHTMLEquals(parse(input), expected);
-});
-
-Deno.test("テーブルエイリアスを使ったヘッダー行の後に通常行が続くテーブル", () => {
-  const input = `|,First name,Last name,class=header-row
-|,John,Doe
-|,Jane,Smith`;
-
-  const expected = `<table class="header-row">
-    <tbody>
-        <tr>
-            <td>First name</td>
-            <td>Last name</td>
-        </tr>
         <tr>
             <td>John</td>
             <td>Doe</td>

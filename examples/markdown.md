@@ -11,7 +11,6 @@ In Markdown, heading levels are represented by the number of `#` characters.
 - Item 1
 - Item 2
   - Subitem
-  - Subitem 2
 
 ## Tables
 
@@ -19,7 +18,6 @@ In Markdown, heading levels are represented by the number of `#` characters.
 |---------|-----|-------------|
 | Smith   | 28  | Engineer    |
 | Johnson | 34  | Designer    |
-| Brown   | 42  | Manager     |
 
 ## Code Blocks
 

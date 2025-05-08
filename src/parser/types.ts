@@ -24,19 +24,29 @@ export type TagName =
   | "hr";
 
 /**
+ * Special internal tag identifier
+ */
+export type SpecialTag = "empty_line";
+
+/**
+ * All valid tag names (HTML standard tags and special internal tags)
+ */
+export type AllTags = TagName | SpecialTag;
+
+/**
  * Represents HTML element attributes as key-value pairs
  */
 export type Attribute = Record<string, string>;
 
 /**
  * Represents a row in the CSV document
- * @property {string} tag - The HTML tag name
+ * @property {string} tag - The HTML tag name or special tag
  * @property {string[]} values - Array of cell values from the CSV row
  * @property {Attribute} attributes - HTML attributes to be applied to the element
  * @property {number} depth - Nesting level of the element in document hierarchy
  */
 export interface CSVRow {
-  tag: string;
+  tag: string; // Would like to use AllTags type, but maintaining string for compatibility with existing code
   values: string[];
   attributes: Attribute;
   depth: number;

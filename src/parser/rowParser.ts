@@ -1,4 +1,4 @@
-import type { Attribute, CSVRow } from "./types.ts";
+import type { Attribute, CSVRow, SpecialTag } from "./types.ts";
 
 /**
  * Mapping of tag aliases
@@ -18,6 +18,7 @@ const TAG_ALIASES: Record<string, string> = {
   "[": "thead",
   "```": "code",
   ">": "blockquote",
+  ".": "empty_line",
 };
 
 /**
@@ -26,50 +27,25 @@ const TAG_ALIASES: Record<string, string> = {
  * @returns Parsed CSVRow object
  */
 export function parseRow(row: string[]): CSVRow {
-  if (row.length === 0) {
-    return {
-      tag: "p",
-      values: [],
-      attributes: {},
-      depth: 0,
-    };
-  }
-
   // Extract depth from tag name
   const tagWithDepth = row[0];
-  const depthMatch = tagWithDepth.match(/^(\.+)?(.*)/);
+  const depthMatch = tagWithDepth.match(/^(_+)?(.*)/);
   const depth = depthMatch?.[1] ? depthMatch[1].length : 0;
   const tag = (depthMatch?.[2] ? depthMatch[2] : tagWithDepth).trim();
 
   // Check aliases and convert to actual tag
   const actualTag = TAG_ALIASES[tag] || tag;
 
-  // Get values (content)
-  // Check if the last column is an attribute, if not, include all values
-  let values: string[] = [];
+  let value = "";
   let attributeString = "";
 
   if (row.length > 1) {
-    // Special handling for hr tag
-    if (actualTag === "hr") {
-      // hr tag doesn't have values, treat everything after the first column as attributes
-      attributeString = row[1];
-    } else {
-      const lastColumn = row[row.length - 1];
-      // Precise determination of attribute string - string in "key=value" format
-      // Format with at least one "key=value" pair separated by semicolons
-      const isAttributeString =
-        /^[^=]+=.*/.test(lastColumn.trim()) && lastColumn.trim() !== "";
+    // Value in the second column (treat empty values as empty strings)
+    value = row[1];
 
-      if (isAttributeString && row.length > 2) {
-        // If attributes are included, get values from all elements except the last one
-        values = row.slice(1, row.length - 1);
-        attributeString = lastColumn;
-      } else {
-        // If no attributes, include all values
-        values = row.slice(1);
-        attributeString = "";
-      }
+    // Attributes in the third column (if it exists)
+    if (row.length > 2) {
+      attributeString = row[2];
     }
   }
 
@@ -81,7 +57,7 @@ export function parseRow(row: string[]): CSVRow {
 
   return {
     tag: actualTag || "p", // Use "p" as default if tag is empty
-    values,
+    values: row.length > 1 ? [value] : [], // Treat empty values as empty values
     attributes,
     depth,
   };

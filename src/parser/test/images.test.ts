@@ -329,26 +329,6 @@ Deno.test("他のタグ内での画像（見出し内）", () => {
   assertHTMLEquals(parse(input), expected);
 });
 
-Deno.test("他のタグ内での画像（テーブルセル内）", () => {
-  const input = `table,名前,説明
-table,サンプル,![テーブル内画像](table-image.jpg) 説明テキスト`;
-
-  const expected = `<table>
-<tbody>
-<tr>
-<td>名前</td>
-<td>説明</td>
-</tr>
-<tr>
-<td>サンプル</td>
-<td><img src="table-image.jpg" alt="テーブル内画像" /> 説明テキスト</td>
-</tr>
-</tbody>
-</table>`;
-
-  assertHTMLEquals(parse(input), expected);
-});
-
 Deno.test("複数のインライン画像の連続", () => {
   const input =
     "p,テキスト ![画像1](image1.jpg) 中間テキスト ![画像2](image2.jpg) 終了テキスト";

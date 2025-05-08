@@ -15,7 +15,7 @@ export function parseCSV(
     return parse(input, {
       relax_column_count: true,
       columns: false,
-      skip_empty_lines: false,
+      skip_empty_lines: true,
       delimiter: fileType === "tsv" ? "\t" : ",",
       quote: fileType === "tsv" ? null : '"',
     });

@@ -3,9 +3,12 @@ import { assertHTMLEquals } from "./utils.ts";
 
 Deno.test("異なる要素が混在するCSVのパース", () => {
   const input = `h1,タイトル
+
 p,段落です。
+
 ul,リスト項目1
 ul,リスト項目2
+
 hr
 blockquote,引用です。
 p,最後の段落です。`;
@@ -81,10 +84,18 @@ code,h1
 code,p
 
 h2,**実際の例**
-table,要素,用途,備考
-table,h1-h6,見出し,文書の構造化に使用
-table,p,段落,テキストブロック
-table,ul/ol/li,リスト,順序付き/順序なしリスト
+table,要素
+table,用途
+table,備考
+table0,h1-h6
+table0,見出し
+table0,文書の構造化に使用
+table1,p
+table1,段落
+table1,テキストブロック
+table2,ul/ol/li
+table2,リスト
+table2,順序付き/順序なしリスト
 
 p,詳細は [公式ドキュメント](https://example.com/docs) を参照してください。`;
 

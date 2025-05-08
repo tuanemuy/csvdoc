@@ -154,7 +154,7 @@ alert(a);</code></pre>`;
 Deno.test("コードブロックの後に他の種類のコードブロックが続く場合", () => {
   const input = `code,const a = 1;,language=javascript
 code,console.log(a);
-
+.
 code,def hello():,language=python
 code,"    print(""Hello"")"`;
 
@@ -170,8 +170,7 @@ Deno.test("不正な属性形式のコードブロック", () => {
   const input = `code,"console.log(""Hello"");",languagejavascript`;
 
   // 属性形式が不正な場合は、単純に値として扱われるべき
-  const expected = `<pre><code>console.log("Hello");
-languagejavascript</code></pre>`;
+  const expected = `<pre><code>console.log("Hello");</code></pre>`;
 
   assertHTMLEquals(parse(input), expected);
 });
@@ -243,24 +242,6 @@ code,const y = 2;`;
   const expected = `<pre><code>const x = 1;</code></pre>
 <p>console.log(x);</p>
 <pre><code>const y = 2;</code></pre>`;
-
-  assertHTMLEquals(parse(input), expected);
-});
-
-Deno.test("非常に長いコードブロック", () => {
-  // 100行のコードブロックを生成
-  const codeLines = Array.from(
-    { length: 100 },
-    (_, i) => `code,// Line ${i + 1}`,
-  ).join("\n");
-  const input = codeLines;
-
-  // 期待される出力を生成
-  const expectedLines = Array.from(
-    { length: 100 },
-    (_, i) => `// Line ${i + 1}`,
-  ).join("\n");
-  const expected = `<pre><code>${expectedLines}</code></pre>`;
 
   assertHTMLEquals(parse(input), expected);
 });

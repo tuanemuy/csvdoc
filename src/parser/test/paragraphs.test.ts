@@ -24,7 +24,7 @@ p,2行目です。`;
 
 Deno.test("空行を挟んだ段落のパース（別段落）", () => {
   const input = `p,最初の段落です。
-
+.
 p,2つ目の段落です。`;
 
   const expected = `<p>最初の段落です。</p>
@@ -45,9 +45,11 @@ Deno.test("段落要素に属性を付与", () => {
 // エッジケースと異常系のテスト
 
 Deno.test("空の段落のパース", () => {
-  const input = "p,";
+  const input = `p,
+.
+p,`;
 
-  const expected = "<p></p>";
+  const expected = "<p></p><p></p>";
 
   assertHTMLEquals(parse(input), expected);
 });
@@ -104,7 +106,7 @@ Deno.test("複数の属性を持つ段落", () => {
 Deno.test("複数の段落で属性が引き継がれる場合の確認", () => {
   const input = `p,最初の段落,class=first
 p,2つ目の段落,class=second
-
+.
 p,3つ目の段落,class=third`;
 
   // 2つ目の段落の属性が優先される
@@ -145,11 +147,11 @@ Deno.test("空行のみの入力", () => {
 
 Deno.test("複数の空行を含む入力", () => {
   const input = `p,最初
-
+.
 p,
-
-
-
+.
+.
+.
 p,最後`;
 
   // 実装の動作に合わせて期待値を修正（空の段落も出力される）

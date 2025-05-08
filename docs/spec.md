@@ -21,18 +21,28 @@ This specification defines a lightweight markup notation using CSV (Comma-Separa
 Each row in the CSV/TSV file has the following column structure:
 
 - 1st column: Specifies the HTML tag name (e.g., h1, p, ul, img).
-- 2nd column onward: Contains the value (content) to be enclosed by the tag. For elements requiring multiple values like tables (table, th, td, etc.), values continue in the 3rd, 4th columns, and so on.
-- Final column: Describes attributes to be applied to the HTML tag (optional).
+- 2nd column: Contains the value (content) to be enclosed by the tag.
+- 3rd column: Describes attributes to be applied to the HTML tag (optional).
+
+Exceptions:
+
+- If the length of the row is 0, it is treated as an empty line.
+- If the 2nd column is empty, the value is treated as an empty string.
 
 ### 2.3. Attribute Description
 
-- The final column describes HTML tag attributes in the format `key1=value1;key2=value2`.
+- The 3rd column describes HTML tag attributes in the format `key1=value1;key2=value2`.
 - Multiple attributes are separated by semicolons `;`.
 - If an attribute value contains a semicolon or equals sign, it should be escaped with a backslash.
 
 ### 2.4. Handling Invalid Tags
 
 - If a value specified in the 1st column is an invalid tag name (not defined in this specification or cannot be interpreted as an HTML tag), the row is treated as a `p` tag (paragraph) by default.
+
+### 2.5 Empty Lines
+
+- Empty lines are ignored.
+- To explicitly specify an empty line, use `.` in the 1st column.
 
 ## 3. Block Elements
 
@@ -81,7 +91,7 @@ renders as:
 - Tag: p
 - Value (2nd column): The paragraph text.
 - Consecutive `p` tags: Treated as line breaks using `<br />` within the same `<p>` tag.
-- Paragraph separation: To start a new paragraph, insert an empty line in the CSV file.
+- Paragraph separation: To start a new paragraph, use `.` in the 1st column and follow it with a new `p` tag.
 
 #### Example 1
 
@@ -125,13 +135,13 @@ renders as:
 
 ```csv
 p,This is the first paragraph.
-
+.
 p,This is the second paragraph.
 ```
 
 ```tsv
 p	This is the first paragraph.
-
+.
 p	This is the second paragraph.
 ```
 
@@ -147,7 +157,7 @@ renders as:
 
 - Tag: a
 - Value (2nd column): The text to be displayed as the link.
-- Attributes (final column): The `href` attribute is required. Other attributes such as `target`, `title`, etc. can be specified as needed.
+- Attributes (3rd column): The `href` attribute is required. Other attributes such as `target`, `title`, etc. can be specified as needed.
 - Treatment as a block: When an `a` tag is used as a standalone line, it is enclosed in a `<p>` tag.
 
 #### Example 1
@@ -170,8 +180,8 @@ renders as:
 
 - Tag: img
 - Value (2nd column): Alternative text for the image (value for the `alt` attribute).
-- Attributes (final column): The `src` attribute is required. Other attributes such as `width`, `height`, etc. can be specified as needed.
-- `alt` attribute priority: If the `alt` attribute is also specified in the final column attributes, the value in the 2nd column takes precedence.
+- Attributes (3rd column): The `src` attribute is required. Other attributes such as `width`, `height`, etc. can be specified as needed.
+- `alt` attribute priority: If the `alt` attribute is also specified in the 3rd column attributes, the value in the 2nd column takes precedence.
 - Treatment as a block: When an `img` tag is used as a standalone line, it is enclosed in a `<p>` tag.
 
 #### Example 1
@@ -196,7 +206,9 @@ renders as:
     - ul, li: Generate an unordered list (`<ul>`). Both tags are treated similarly and create list items (`<li>`).
     - ol: Generates an ordered list (`<ol>`) and creates list items (`<li>`).
 - Value (2nd column): The content of the list item.
-- Hierarchical structure: Adding dots `.` before the tag name expresses nested lists. The number of dots indicates the depth of the hierarchy.
+- Attributes (3rd column): Attributes are applied to the `ul` or `ol` tag.
+- Hierarchical structure: Adding underscores `_` before the tag name expresses nested lists. The number of underscores indicates the depth of the hierarchy.
+- Consecutive tags: If tag names are the same, they are treated as list items within the same list. If the tag names differ, they are treated as separate lists.
 
 #### Aliases
 
@@ -212,13 +224,11 @@ renders as:
 ```csv
 ul,Item 1
 ul,Item 2
-ul,Item 3
 ```
 
 ```tsv
 ul	Item 1
 ul	Item 2
-ul	Item 3
 ```
 
 renders as:
@@ -227,7 +237,6 @@ renders as:
 <ul>
     <li>Item 1</li>
     <li>Item 2</li>
-    <li>Item 3</li>
 </ul>
 ```
 
@@ -236,7 +245,6 @@ renders as:
 ```csv
 ol,Item 1
 ol,Item 2
-ol,Item 3
 ```
 
 renders as:
@@ -245,7 +253,6 @@ renders as:
 <ol>
     <li>Item 1</li>
     <li>Item 2</li>
-    <li>Item 3</li>
 </ol>
 ```
 
@@ -254,7 +261,6 @@ renders as:
 ```csv
 li,Item 1
 li,Item 2
-li,Item 3
 ```
 
 renders as:
@@ -263,7 +269,6 @@ renders as:
 <ul>
     <li>Item 1</li>
     <li>Item 2</li>
-    <li>Item 3</li>
 </ul>
 ```
 
@@ -281,6 +286,8 @@ renders as:
 <ul>
     <li>Item 1</li>
     <li>Item 2</li>
+</ul>
+<ul>
     <li>Item 3</li>
 </ul>
 ```
@@ -289,9 +296,9 @@ renders as:
 
 ```csv
 ul,Item 1
-.ul,Item 1-1
-.ul,Item 1-2
-..ul,Item 1-2-1
+_ul,Item 1-1
+_ul,Item 1-2
+__ul,Item 1-2-1
 ul,Item 2
 ```
 
@@ -318,9 +325,9 @@ renders as:
 
 ```csv
 li,Item 1
-.li,Item 1-1
-.li,Item 1-2
-..li,Item 1-2-1
+_li,Item 1-1
+_li,Item 1-2
+__li,Item 1-2-1
 li,Item 2
 ```
 
@@ -349,49 +356,31 @@ renders as:
     - table, tbody, td: These are treated as generating table body (`<tbody>`), rows (`<tr>`), and data cells (`<td>`). Consecutive occurrences of these tags form rows within the same `<tbody>`.
     - th: Generates rows (`<tr>`) and table header cells (`<th>`) within the table body (`<tbody>`).
     - thead: Generates rows (`<tr>`) and header cells (`<th>`) within the table header (`<thead>`).
-- Values (2nd column onward): The content of each cell.
-- Column adjustment: If the number of values (columns) differs between rows (CSV rows), the generated HTML table will compensate by adding empty cells to match the row with the most columns in that table.
+- Value (2nd column): The content of the cell.
+- Column adjustment: You can add suffix numbers to tag names to group elements into rows. Consecutive tags with the same name and the same suffix are treated as belonging to the same row. For example, a sequence of `td0` tags will form a single row. Following the same rule, consecutive `table1` tags will form one row, and consecutive `table2` tags will form a different row. The suffix number is optional; if omitted, consecutive tags (with no suffix) will also form a single row.
+- Attributes (3rd column): Attributes are applied to the `table` tag.
 
 #### Aliases
 
 |Alias|Tag|
 |:--|:--|
 |\||table|
+|[|thead|
 
 #### Example 1
 
 ```csv
-table,John,Doe
-table,Jane,Doe
+table0,John
+table0,Doe
+table1,Jane
+table1,Doe
 ```
 
 ```tsv
-table	John	Doe
-table	Jane	Doe
-```
-
-renders as:
-
-```html
-<table>
-    <tbody>
-        <tr>
-            <td>John</td>
-            <td>Doe</td>
-        </tr>
-        <tr>
-            <td>Jane</td>
-            <td>Doe</td>
-        </tr>
-    </tbody>
-</table>
-```
-
-#### Example 2
-
-```csv
-tbody,John,Doe
-tbody,Jane,Doe
+table0	John
+table0	Doe
+table1	Jane
+table1	Doe
 ```
 
 renders as:
@@ -414,8 +403,10 @@ renders as:
 #### Example 3
 
 ```csv
-td,John,Doe
-td,Jane,Doe
+tbody0,John
+tbody0,Doe
+tbody1,Jane
+tbody1,Doe
 ```
 
 renders as:
@@ -438,9 +429,12 @@ renders as:
 #### Example 4
 
 ```csv
-th,First name,Last name
-td,John,Doe
-td,Jane,Doe
+th,First name
+th,Last name
+td0,John
+td0,Doe
+td1,Jane
+td1,Doe
 ```
 
 renders as:
@@ -467,9 +461,21 @@ renders as:
 #### Example 5
 
 ```csv
-thead,First name,Last name
-tbody,John,Doe
-tbody,Jane,Doe
+thead,First name
+thead,Last name
+tbody0,John
+tbody0,Doe
+tbody1,Jane
+tbody1,Doe
+```
+
+```csv
+[,First name
+[,Last name
+|0,John
+|0,Doe
+|1,Jane
+|1,Doe
 ```
 
 renders as:
@@ -498,9 +504,12 @@ renders as:
 #### Example 6
 
 ```csv
-thead,First name,Last name
-td,John,Doe
-td,Jane,Doe
+thead,First name
+thead,Last name
+td0,John
+td0,Doe
+td,Jane
+td,Doe
 ```
 
 renders as:
@@ -531,7 +540,7 @@ renders as:
 - Tag: code
 - Value (2nd column): The code fragment.
 - Consecutive `code` tags: Treated as line breaks within the same `<pre><code>...</code></pre>` block.
-- Language specification: By specifying an attribute in the format `language=language_name` in the final column of any of the consecutive `code` lines, a class for syntax highlighting is added (e.g., `class="language-javascript"`). It doesn't need to be specified multiple times within the same block.
+- Language specification: By specifying an attribute in the format `language=language_name` in the 3rd column of any of the consecutive `code` lines, a class for syntax highlighting is added (e.g., `class="language-javascript"`). It doesn't need to be specified multiple times within the same block.
 
 #### Aliases
 
@@ -564,34 +573,25 @@ renders as:
   }</code></pre>
 ```
 
-### Example 1
+### 3.8. Blockquotes (blockquote)
 
-```csv
-p,This is **important** text that includes a `code` snippet. For details, refer to [this link](https://example.com).
-```
+- Tag: blockquote
+- Value (2nd column): The content of the blockquote.
+- Consecutive `blockquote` tags: Treated as new paragraphs within the same `<blockquote>` block.
+- Nested blockquotes: By prefixing the tag with an underscore `_`, you can create nested blockquotes. The number of underscores indicates the depth of the hierarchy.
 
-```tsv
-p	This is **important** text that includes a `code` snippet. For details, refer to [this link](https://example.com).
-```
-
-renders as:
-
-```html
-<p>This is <strong>important</strong> text that includes a <code>code</code> snippet. For details, refer to <a href="https://example.com">this link</a>.</p>
-```
-
-#### Example 2
+#### Example 1
 
 ```csv
 blockquote,This is a quote.
 blockquote,This is a quote.
-.blockquote,This is a quote.
+_blockquote,This is a quote.
 ```
 
 ```tsv
 blockquote	This is a quote.
 blockquote	This is a quote.
-.blockquote	This is a quote.
+_blockquote	This is a quote.
 ```
 
 renders as:
@@ -606,6 +606,11 @@ renders as:
 </blockquote>
 ```
 
+### 3.9. Horizontal Rules (hr)
+
+- Tag: hr
+- Value (2nd column): Not applicable.
+
 #### Example 1
 
 ```csv
@@ -616,4 +621,32 @@ renders as:
 
 ```html
 <hr />
+```
+
+## 4. Inline Elements
+
+The values of block elements (mainly the content in the 2nd column) are parsed into inline elements during conversion to HTML. This parsing process is recommended to comply with the [GitHub Flavored Markdown (GFM) Spec for inline elements](https://github.github.com/gfm/#inlines).
+
+This allows for the use of Markdown-like syntax within the values, such as:
+
+- Emphasis: `*italic*` or `_italic_` ( `<em>` ), `**bold**` or `__bold__` ( `<strong>` )
+- Code span: Text enclosed in backticks ( `<code>` )
+- Strikethrough: `~~strikethrough~~` ( `<del>` )
+- Inline link: `[link text](URL "title")` ( `<a>` )
+- Inline image: `![alt text](image URL "title")` ( `<img>` )
+
+#### Example 1
+
+```csv
+p,This is **important** text that includes a `code` snippet. For details, refer to [this link](https://example.com).
+```
+
+```tsv
+p	This is **important** text that includes a `code` snippet. For details, refer to [this link](https://example.com).
+```
+
+renders as:
+
+```html
+<p>This is <strong>important</strong> text that includes a <code>code</code> snippet. For details, refer to <a href="https://example.com">this link</a>.</p>
 ```

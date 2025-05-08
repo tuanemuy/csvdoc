@@ -62,13 +62,19 @@ console.log(tsvHtml); // <h1>Title</h1><p>description</p>
 
 -,Item 1
 -,Item 2
-.-,Subitem
+_-,Subitem
 
 ##,Tables
 
-[,Name,Age,Occupation
-|,Smith,28,Engineer
-|,Johnson,34,Designer
+[,Name
+[,Age
+[,Occupation
+|0,Smith
+|0,28
+|0,Engineer
+|1,Johnson
+|1,34
+|1,Designer
 ```
 
 ### TSVDoc
@@ -84,13 +90,19 @@ console.log(tsvHtml); // <h1>Title</h1><p>description</p>
 
 -	Item 1
 -	Item 2
-.-	Subitem
+_-	Subitem
 
 ##	Tables
 
-[	Name	Age	Occupation
-|	Smith	28	Engineer
-|	Johnson	34	Designer
+[	Name
+[	Age
+[	Occupation
+|0	Smith
+|0	28
+|0	Engineer
+|1	Johnson
+|1	34
+|1	Designer
 ```
 
 You can find more examples in [this directory](https://github.com/tuanemuy/csvdoc/blob/main/examples).

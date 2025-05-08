@@ -50,6 +50,8 @@ li,項目3`;
 
   const expected = `<ul>
     <li>項目1</li>
+</ul>
+<ul>
     <li>項目2</li>
     <li>項目3</li>
 </ul>`;
@@ -59,9 +61,9 @@ li,項目3`;
 
 Deno.test("ネスト(入れ子)構造を持つリストのパース", () => {
   const input = `ul,項目1
-.ul,項目1-1
-.ul,項目1-2
-..ul,項目1-2-1
+_ul,項目1-1
+_ul,項目1-2
+__ul,項目1-2-1
 ul,項目2`;
 
   const expected = `<ul>
@@ -84,9 +86,9 @@ ul,項目2`;
 
 Deno.test("liタグを使用したネスト構造を持つリストのパース", () => {
   const input = `li,項目1
-.li,項目1-1
-.li,項目1-2
-..li,項目1-2-1
+_li,項目1-1
+_li,項目1-2
+__li,項目1-2-1
 li,項目2`;
 
   const expected = `<ul>
@@ -113,9 +115,11 @@ li,項目2,id=item2
 li,項目3,data-value=3`;
 
   const expected = `<ul class="feature-list">
-    <li class="feature-list">項目1</li>
-    <li id="item2">項目2</li>
-    <li data-value="3">項目3</li>
+    <li>項目1</li>
+</ul>
+<ul id="item2" data-value="3">
+    <li>項目2</li>
+    <li>項目3</li>
 </ul>`;
 
   assertHTMLEquals(parse(input), expected);
@@ -160,8 +164,14 @@ ol,項目4`;
   // 最初のol要素が優先され、すべての項目がol内に生成される
   const expected = `<ol>
     <li>項目1</li>
+</ol>
+<ul>
     <li>項目2</li>
+</ul>
+<ul>
     <li>項目3</li>
+</ul>
+<ol>
     <li>項目4</li>
 </ol>`;
 
@@ -178,17 +188,19 @@ ul,項目4`;
   const expected = `<ol>
     <li>項目1</li>
     <li>項目2</li>
+</ol>
+<ul>
     <li>項目3</li>
     <li>項目4</li>
-</ol>`;
+</ul>`;
 
   assertHTMLEquals(parse(input), expected);
 });
 
 Deno.test("不規則なインデント構造を持つリスト", () => {
   const input = `ul,レベル1
-.ul,レベル2（自動補完用）
-..ul,レベル3
+_ul,レベル2（自動補完用）
+__ul,レベル3
 ul,レベル1-2`;
 
   const expected = `<ul>
@@ -211,11 +223,11 @@ ul,レベル1-2`;
 
 Deno.test("入れ子が深すぎるリスト構造", () => {
   const input = `ul,レベル1
-.ul,レベル2
-..ul,レベル3
-...ul,レベル4
-....ul,レベル5
-.....ul,レベル6`;
+_ul,レベル2
+__ul,レベル3
+___ul,レベル4
+____ul,レベル5
+_____ul,レベル6`;
 
   const expected = `<ul>
     <li>
@@ -250,14 +262,14 @@ Deno.test("入れ子が深すぎるリスト構造", () => {
 });
 
 Deno.test("複数の属性を持つリスト項目", () => {
-  const input = `ul,項目1,class=important id=first data-order=1
+  const input = `ul,項目1,class=important;id=first;data-order=1
 ul,項目2,class=normal hidden
 ul,項目3,style=color:red`;
 
-  const expected = `<ul class="important id=first data-order=1">
-    <li class="important id=first data-order=1">項目1</li>
-    <li class="normal hidden">項目2</li>
-    <li style="color:red">項目3</li>
+  const expected = `<ul class="normal hidden" data-order="1" id="first" style="color:red">
+    <li>項目1</li>
+    <li>項目2</li>
+    <li>項目3</li>
 </ul>`;
 
   assertHTMLEquals(parse(input), expected);
@@ -265,14 +277,14 @@ ul,項目3,style=color:red`;
 
 Deno.test("ネスト構造において子リストに属性を適用", () => {
   const input = `ul,親項目
-.ul,子項目1,class=child-list
-.ul,子項目2`;
+_ul,子項目1,class=child-list
+_ul,子項目2`;
 
   const expected = `<ul>
     <li>
         親項目
-        <ul>
-            <li class="child-list">子項目1</li>
+        <ul class="child-list">
+            <li>子項目1</li>
             <li>子項目2</li>
         </ul>
     </li>
@@ -283,18 +295,17 @@ Deno.test("ネスト構造において子リストに属性を適用", () => {
 
 Deno.test("複数レベルのネストで異なるリスト種類を使用", () => {
   const input = `ul,順序なしリスト項目
-.ol,順序付きリスト項目1
-.ol,順序付きリスト項目2
-..ul,順序なしリスト項目2-1`;
+_ol,順序付きリスト項目1
+_ol,順序付きリスト項目2
+__ul,順序なしリスト項目2-1`;
 
-  // ネスト内で異なるリスト種類が指定された場合も、指定通りのリスト種類が使用される
+  // 仕様変更に合わせて期待値を修正: ネストされたリスト内のタグの変更でも一つの構造として扱う
   const expected = `<ul>
     <li>
         順序なしリスト項目
         <ol>
             <li>順序付きリスト項目1</li>
-            <li>
-                順序付きリスト項目2
+            <li>順序付きリスト項目2
                 <ul>
                     <li>順序なしリスト項目2-1</li>
                 </ul>
@@ -371,7 +382,7 @@ Deno.test("空の入力からのリスト解析", () => {
 
 Deno.test("空行を含むリスト処理", () => {
   const input = `ul,項目1
-
+.
 ul,項目2`;
 
   // 空行がある場合は別々のulとして処理される
@@ -387,10 +398,10 @@ ul,項目2`;
 
 Deno.test("深いネストからの階層戻り", () => {
   const input = `ul,レベル1
-.ul,レベル2
-..ul,レベル3
-...ul,レベル4
-.ul,レベル2に戻る`;
+_ul,レベル2
+__ul,レベル3
+___ul,レベル4
+_ul,レベル2に戻る`;
 
   const expected = `<ul>
     <li>
@@ -445,13 +456,13 @@ ul,特殊記号：♠♥♦♣`;
 });
 
 Deno.test("重複した属性を持つリスト項目", () => {
-  const input = `ul,項目1,class=first class=second
-ul,項目2,id=one id=two`;
+  const input = `ul,項目1,class=first;class=second
+ul,項目2,id=one;id=two`;
 
   // 後の属性が優先される
-  const expected = `<ul class="first class=second">
-    <li class="first class=second">項目1</li>
-    <li id="one id=two">項目2</li>
+  const expected = `<ul class="second" id="two">
+    <li>項目1</li>
+    <li>項目2</li>
 </ul>`;
 
   assertHTMLEquals(parse(input), expected);
@@ -493,9 +504,9 @@ ul,項目`;
 
 Deno.test("不完全なネストでの深さの変更", () => {
   const input = `ul,レベル1
-.ul,レベル2
-..ul,レベル3
-.ul,レベル2に戻る`;
+_ul,レベル2
+__ul,レベル3
+_ul,レベル2に戻る`;
 
   const expected = `<ul>
     <li>
@@ -545,10 +556,10 @@ Deno.test("リストのエイリアス(1)を使った順序付きリストのパ
 
 Deno.test("エイリアスとネスト構造を組み合わせたリスト", () => {
   const input = `-,レベル1
-.-,レベル2（ハイフン）
-.+,レベル2（プラス）
-..*,レベル3（アスタリスク）
-.1,順序付きリスト項目`;
+_-,レベル2（ハイフン）
+_+,レベル2（プラス）
+__*,レベル3（アスタリスク）
+_1,順序付きリスト項目`;
 
   const expected = `<ul>
     <li>
@@ -560,8 +571,10 @@ Deno.test("エイリアスとネスト構造を組み合わせたリスト", () 
                     <li>レベル3（アスタリスク）</li>
                 </ul>
             </li>
-            <li>順序付きリスト項目</li>
         </ul>
+        <ol>
+            <li>順序付きリスト項目</li>
+        </ol>
     </li>
 </ul>`;
 
@@ -577,7 +590,11 @@ li,liタグの項目
   const expected = `<ul>
     <li>通常タグの項目</li>
     <li>ハイフンエイリアスの項目</li>
+</ul>
+<ul>
     <li>liタグの項目</li>
+</ul>
+<ul>
     <li>アスタリスクエイリアスの項目</li>
 </ul>`;
 
@@ -590,18 +607,20 @@ Deno.test("エイリアスと属性を組み合わせたリスト", () => {
 1,番号付き項目,style=color:red`;
 
   // 現在の実装では、連続するリスト要素は同じリストとして扱われる
-  const expected = `<ul class="dash-item">
-    <li class="dash-item">ハイフンの項目</li>
-    <li id="star-item">アスタリスクの項目</li>
-    <li style="color:red">番号付き項目</li>
-</ul>`;
+  const expected = `<ul class="dash-item" id="star-item">
+    <li>ハイフンの項目</li>
+    <li>アスタリスクの項目</li>
+</ul>
+<ol style="color:red">
+    <li>番号付き項目</li>
+</ol>`;
 
   assertHTMLEquals(parse(input), expected);
 });
 
 Deno.test("リストエイリアスの分離", () => {
   const input = `-,ハイフンの項目
-
+.
 1,順序付きリスト項目`;
 
   // 空行で区切られた場合は別々のリストになる

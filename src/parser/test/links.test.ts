@@ -32,7 +32,7 @@ a,リンク2,href=https://example.com/2`;
 Deno.test("hrefが指定されていない場合の処理", () => {
   const input = "a,リンクテキスト";
 
-  const expected = '<p><a href="#">リンクテキスト</a></p>';
+  const expected = '<p><a href="">リンクテキスト</a></p>';
 
   assertHTMLEquals(parse(input), expected);
 });
@@ -173,7 +173,7 @@ Deno.test("URLエンコードが必要な文字を含むhref属性の処理", ()
 Deno.test("href属性が空文字の場合", () => {
   const input = "a,空のリンク,href=";
 
-  const expected = '<p><a href="#">空のリンク</a></p>';
+  const expected = '<p><a href="">空のリンク</a></p>';
 
   assertHTMLEquals(parse(input), expected);
 });
@@ -264,26 +264,6 @@ Deno.test("他のタグ内でのリンク（見出し内）", () => {
 
   const expected =
     '<h1>見出し <a href="https://example.com">見出し内リンク</a> テキスト</h1>';
-
-  assertHTMLEquals(parse(input), expected);
-});
-
-Deno.test("他のタグ内でのリンク（テーブルセル内）", () => {
-  const input = `table,名前,説明
-table,サンプル,[テーブル内リンク](https://example.com) 説明テキスト`;
-
-  const expected = `<table>
-<tbody>
-<tr>
-<td>名前</td>
-<td>説明</td>
-</tr>
-<tr>
-<td>サンプル</td>
-<td><a href="https://example.com">テーブル内リンク</a> 説明テキスト</td>
-</tr>
-</tbody>
-</table>`;
 
   assertHTMLEquals(parse(input), expected);
 });

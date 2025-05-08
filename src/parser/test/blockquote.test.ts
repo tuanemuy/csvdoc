@@ -26,7 +26,7 @@ blockquote,続きの引用文です。`;
 Deno.test("ネスト(入れ子)構造を持つ引用要素のパース", () => {
   const input = `blockquote,外側の引用です。
 blockquote,外側の引用の続きです。
-.blockquote,内側の引用です。
+_blockquote,内側の引用です。
 blockquote,外側の引用に戻ります。`;
 
   const expected = `<blockquote>
@@ -43,9 +43,9 @@ blockquote,外側の引用に戻ります。`;
 
 Deno.test("複数のネストレベルを持つ引用要素のパース", () => {
   const input = `blockquote,第1レベルの引用です。
-.blockquote,第2レベルの引用です。
-..blockquote,第3レベルの引用です。
-.blockquote,第2レベルに戻ります。
+_blockquote,第2レベルの引用です。
+__blockquote,第3レベルの引用です。
+_blockquote,第2レベルに戻ります。
 blockquote,第1レベルに戻ります。`;
 
   const expected = `<blockquote>
@@ -65,7 +65,7 @@ blockquote,第1レベルに戻ります。`;
 
 Deno.test("引用要素に属性を付与", () => {
   const input = `blockquote,引用文です。,class=quote;id=main-quote
-.blockquote,内側の引用です。,class=nested-quote`;
+_blockquote,内側の引用です。,class=nested-quote`;
 
   const expected = `<blockquote class="quote" id="main-quote">
     <p>引用文です。</p>
@@ -114,7 +114,7 @@ Deno.test("引用要素内にインライン要素を含む場合", () => {
 
 Deno.test("深さのスキップがある引用要素のパース（レベル1から3へ）", () => {
   const input = `blockquote,第1レベルの引用です。
-...blockquote,第3レベルの引用です（第2レベルをスキップ）。`;
+___blockquote,第3レベルの引用です（第2レベルをスキップ）。`;
 
   const expected = `<blockquote>
     <p>第1レベルの引用です。</p>
@@ -128,7 +128,7 @@ Deno.test("深さのスキップがある引用要素のパース（レベル1�
 
 Deno.test("引用要素の間に空行がある場合", () => {
   const input = `blockquote,最初の引用文です。
-
+.
 blockquote,空行を挟んだ引用文です。`;
 
   const expected = `<blockquote>
@@ -143,8 +143,8 @@ blockquote,空行を挟んだ引用文です。`;
 
 Deno.test("入れ子の深い引用から一気に最上位に戻る場合", () => {
   const input = `blockquote,第1レベルの引用です。
-.blockquote,第2レベルの引用です。
-..blockquote,第3レベルの引用です。
+_blockquote,第2レベルの引用です。
+__blockquote,第3レベルの引用です。
 blockquote,一気に第1レベルに戻ります。`;
 
   const expected = `<blockquote>
@@ -231,11 +231,11 @@ Deno.test("非常に長いテキストを含む引用要素", () => {
 Deno.test("多数のネストレベルを持つ引用要素", () => {
   // 5段階の深いネスト
   const input = `blockquote,第1レベルの引用です。
-.blockquote,第2レベルの引用です。
-..blockquote,第3レベルの引用です。
-...blockquote,第4レベルの引用です。
-....blockquote,第5レベルの引用です。
-.....blockquote,第6レベルの引用です。`;
+_blockquote,第2レベルの引用です。
+__blockquote,第3レベルの引用です。
+___blockquote,第4レベルの引用です。
+____blockquote,第5レベルの引用です。
+_____blockquote,第6レベルの引用です。`;
 
   // 実際の出力に近い期待値を設定
   const expected = `<blockquote>
@@ -284,10 +284,10 @@ blockquote,最後の引用です。`;
 
 Deno.test("異なる深さの引用が交互に現れる場合", () => {
   const input = `blockquote,レベル1の引用です。
-.blockquote,レベル2の引用です。
+_blockquote,レベル2の引用です。
 blockquote,レベル1に戻ります。
-.blockquote,また、レベル2に行きます。
-..blockquote,レベル3に進みます。
+_blockquote,また、レベル2に行きます。
+__blockquote,レベル3に進みます。
 blockquote,最後にレベル1に戻ります。`;
 
   const expected = `<blockquote>
@@ -332,7 +332,7 @@ Deno.test("引用エイリアスを使った複数行の引用要素のパース
 
 Deno.test("引用エイリアスを使ったネスト構造の引用要素のパース", () => {
   const input = `>,外側の引用です。
-.>,内側の引用です。
+_>,内側の引用です。
 >,外側の引用に戻ります。`;
 
   const expected = `<blockquote>

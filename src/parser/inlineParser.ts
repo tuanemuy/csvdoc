@@ -18,7 +18,7 @@ export function parseInlineElements(text: string): string {
   const codeFragments: { [key: string]: string } = {};
   let codeCounter = 0;
 
-  result = result.replace(/`([\s\S]*?)`/g, (match, code) => {
+  result = result.replace(/`([\s\S]*?)`/g, (_match, code) => {
     const placeholder = `\uE100${codeCounter}\uE101`;
     // Escape HTML special characters in code spans
     const escapedCode = code

@@ -58,13 +58,13 @@ h2,Heading
 h6,Heading
 ```
 
-または
-
 ```tsv
 h1	Heading
 h2	Heading
 h6	Heading
 ```
+
+renders as:
 
 ```html
 <h1>Heading</h1>
@@ -85,11 +85,11 @@ h6	Heading
 p,This is a paragraph.
 ```
 
-または
-
 ```tsv
 p	This is a paragraph.
 ```
+
+renders as:
 
 ```html
 <p>This is a paragraph.</p>
@@ -102,12 +102,12 @@ p,This is the first line of the paragraph.
 p,This is the second line.
 ```
 
-または
-
 ```tsv
 p	This is the first line of the paragraph.
 p	This is the second line.
 ```
+
+renders as:
 
 ```html
 <p>
@@ -125,13 +125,13 @@ p,This is the first paragraph.
 p,This is the second paragraph.
 ```
 
-または
-
 ```tsv
 p	This is the first paragraph.
 
 p	This is the second paragraph.
 ```
+
+renders as:
 
 ```html
 <p>This is the first paragraph.</p>
@@ -152,11 +152,11 @@ p	This is the second paragraph.
 a,Reference material,href=https://example.com/reference;target=_blank
 ```
 
-または
-
 ```tsv
 a	Reference material	href=https://example.com/reference;target=_blank
 ```
+
+renders as:
 
 ```html
 <p><a href="https://example.com/reference" target="_blank">Reference material</a></p>
@@ -176,11 +176,11 @@ a	Reference material	href=https://example.com/reference;target=_blank
 img,car,src=car.jpg;alt=train
 ```
 
-または
-
 ```tsv
 img	car	src=car.jpg;alt=train
 ```
+
+renders as:
 
 ```html
 <p><img src="car.jpg" alt="car" /></p>
@@ -211,6 +211,14 @@ ul,Item 2
 ul,Item 3
 ```
 
+```tsv
+ul	Item 1
+ul	Item 2
+ul	Item 3
+```
+
+renders as:
+
 ```html
 <ul>
     <li>Item 1</li>
@@ -226,6 +234,8 @@ ol,Item 1
 ol,Item 2
 ol,Item 3
 ```
+
+renders as:
 
 ```html
 <ol>
@@ -243,6 +253,8 @@ li,Item 2
 li,Item 3
 ```
 
+renders as:
+
 ```html
 <ul>
     <li>Item 1</li>
@@ -258,6 +270,8 @@ ul,Item 1
 li,Item 2
 li,Item 3
 ```
+
+renders as:
 
 ```html
 <ul>
@@ -276,6 +290,8 @@ ul,Item 1
 ..ul,Item 1-2-1
 ul,Item 2
 ```
+
+renders as:
 
 ```html
 <ul>
@@ -303,6 +319,8 @@ li,Item 1
 ..li,Item 1-2-1
 li,Item 2
 ```
+
+renders as:
 
 ```html
 <ul>
@@ -343,12 +361,12 @@ table,John,Doe
 table,Jane,Doe
 ```
 
-または
-
 ```tsv
 table	John	Doe
 table	Jane	Doe
 ```
+
+renders as:
 
 ```html
 <table>
@@ -372,6 +390,8 @@ tbody,John,Doe
 tbody,Jane,Doe
 ```
 
+renders as:
+
 ```html
 <table>
     <tbody>
@@ -393,6 +413,8 @@ tbody,Jane,Doe
 td,John,Doe
 td,Jane,Doe
 ```
+
+renders as:
 
 ```html
 <table>
@@ -416,6 +438,8 @@ th,First name,Last name
 td,John,Doe
 td,Jane,Doe
 ```
+
+renders as:
 
 ```html
 <table>
@@ -443,6 +467,8 @@ thead,First name,Last name
 tbody,John,Doe
 tbody,Jane,Doe
 ```
+
+renders as:
 
 ```html
 <table>
@@ -472,6 +498,8 @@ thead,First name,Last name
 td,John,Doe
 td,Jane,Doe
 ```
+
+renders as:
 
 ```html
 <table>
@@ -516,14 +544,14 @@ code,"  console.log(message);"
 code,"}"
 ```
 
-または
-
 ```tsv
-code	"const message = ""Hello, world!"";"	language=javascript
-code	"function hello() {"
-code	"  console.log(message);"
-code	"}"
+code	const message = "Hello, world!";	language=javascript
+code	function hello() {
+code	  console.log(message);
+code	}
 ```
+
+renders as:
 
 ```html
 <pre><code class="language-javascript">const message = "Hello, world!";
@@ -538,11 +566,11 @@ code	"}"
 p,This is **important** text that includes a `code` snippet. For details, refer to [this link](https://example.com).
 ```
 
-または
-
 ```tsv
 p	This is **important** text that includes a `code` snippet. For details, refer to [this link](https://example.com).
 ```
+
+renders as:
 
 ```html
 <p>This is <strong>important</strong> text that includes a <code>code</code> snippet. For details, refer to <a href="https://example.com">this link</a>.</p>
@@ -556,13 +584,13 @@ blockquote,This is a quote.
 .blockquote,This is a quote.
 ```
 
-または
-
 ```tsv
 blockquote	This is a quote.
 blockquote	This is a quote.
 .blockquote	This is a quote.
 ```
+
+renders as:
 
 ```html
 <blockquote>
@@ -580,11 +608,7 @@ blockquote	This is a quote.
 hr
 ```
 
-または
-
-```tsv
-hr
-```
+renders as:
 
 ```html
 <hr />

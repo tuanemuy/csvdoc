@@ -1,4 +1,4 @@
-import { parse } from "csv-parse/sync";
+import { parse } from "../deps.ts";
 import type { FileType } from "./types.ts";
 
 /**

@@ -1,8 +1,8 @@
 #!/usr/bin/env -S deno run -A
 
-import $ from "@david/dax";
+import { $ } from "../deps.ts";
+import { parseArgs } from "../deps.ts";
 import { parse } from "../parser/index.ts";
-import { parseArgs } from "jsr:@std/cli/parse-args";
 import type { FileType } from "../parser/types.ts";
 import pkg from "../../deno.json" with { type: "json" };
 

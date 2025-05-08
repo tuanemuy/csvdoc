@@ -1,3 +1,7 @@
+---
+access: public
+---
+
 # Specification
 
 ## 1. Overview

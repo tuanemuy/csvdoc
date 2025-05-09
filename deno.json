@@ -1,7 +1,7 @@
 {
   "name": "@tuanemuy/csvdoc",
   "description": "A lightweight markup notation using CSV (Comma-Separated Values) or TSV (Tab-Separated Values) file format",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "license": "MIT",
   "exports": "./src/mod.ts",
   "tasks": {

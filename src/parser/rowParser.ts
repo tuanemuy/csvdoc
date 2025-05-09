@@ -1,53 +1,76 @@
-import type { Attribute, CSVRow, SpecialTag } from "./types.ts";
+import {
+  type Attribute,
+  type CSVRow,
+  type EmptyRow,
+  Tag,
+  isHeadingTag,
+} from "../core/types.ts";
 
 /**
  * Mapping of tag aliases
  */
-const TAG_ALIASES: Record<string, string> = {
-  "#": "h1",
-  "##": "h2",
-  "###": "h3",
-  "####": "h4",
-  "#####": "h5",
-  "######": "h6",
-  "-": "ul",
-  "*": "ul",
-  "+": "ul",
-  "1": "ol",
-  "|": "table",
-  "[": "thead",
-  "```": "code",
-  ">": "blockquote",
-  ".": "empty_line",
+const tagAliases: Record<string, Tag | null> = {
+  "#": Tag.h1,
+  "##": Tag.h2,
+  "###": Tag.h3,
+  "####": Tag.h4,
+  "#####": Tag.h5,
+  "######": Tag.h6,
+  li: Tag.ul,
+  "-": Tag.ul,
+  "*": Tag.ul,
+  "+": Tag.ul,
+  "1": Tag.ol,
+  table: Tag.tbody,
+  tr: Tag.tbody,
+  tbody: Tag.tbody,
+  td: Tag.tbody,
+  th: Tag.tbody,
+  "|": Tag.tbody,
+  "[": Tag.thead,
+  "```": Tag.code,
+  ">": Tag.blockquote,
+  ".": null,
 };
+
+const empty = ".";
+const comment = "//";
 
 /**
  * Parses a single CSV row and converts it to a CSVRow object
  * @param row Array representing a single CSV row
  * @returns Parsed CSVRow object
  */
-export function parseRow(row: string[]): CSVRow {
+export function parseRow(row: string[]): CSVRow | EmptyRow | null {
   // Extract depth from tag name
   const tagWithDepth = row[0];
   const depthMatch = tagWithDepth.match(/^(_+)?(.*)/);
   const depth = depthMatch?.[1] ? depthMatch[1].length : 0;
-  const tag = (depthMatch?.[2] ? depthMatch[2] : tagWithDepth).trim();
-
-  // Check aliases and convert to actual tag
-  const actualTag = TAG_ALIASES[tag] || tag;
-
-  let value = "";
-  let attributeString = "";
-
-  if (row.length > 1) {
-    // Value in the second column (treat empty values as empty strings)
-    value = row[1];
-
-    // Attributes in the third column (if it exists)
-    if (row.length > 2) {
-      attributeString = row[2];
+  let tag = (depthMatch?.[2] ? depthMatch[2] : tagWithDepth).trim();
+  let suffix = undefined;
+  if (!isHeadingTag(tag)) {
+    const suffixMatch = tag.match(/^([a-z\|\[\]]+)(\d*)$/);
+    if (suffixMatch) {
+      tag = suffixMatch[1];
+      suffix = suffixMatch[2] || undefined;
     }
   }
+
+  if (tag === comment || row.length === 0) {
+    return null;
+  }
+
+  if (tag === empty) {
+    return {
+      tag: null,
+    };
+  }
+
+  // Check aliases and convert to actual tag
+  const actualTag = tagAliases[tag] || tag;
+
+  const value = row.length > 1 ? row[1] : null;
+  const attributeString = row.length > 2 ? row[2] : "";
 
   // Parse attributes
   const attributes: Attribute = {};
@@ -56,8 +79,10 @@ export function parseRow(row: string[]): CSVRow {
   }
 
   return {
-    tag: actualTag || "p", // Use "p" as default if tag is empty
-    values: row.length > 1 ? [value] : [], // Treat empty values as empty values
+    tag: actualTag || Tag.p, // Use "p" as default if tag is empty
+    rawTag: tag,
+    suffix,
+    value,
     attributes,
     depth,
   };

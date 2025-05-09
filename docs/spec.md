@@ -116,11 +116,6 @@ p,This is the first line of the paragraph.
 p,This is the second line.
 ```
 
-```tsv
-p	This is the first line of the paragraph.
-p	This is the second line.
-```
-
 renders as:
 
 ```html
@@ -137,12 +132,6 @@ renders as:
 p,This is the first paragraph.
 .
 p,This is the second paragraph.
-```
-
-```tsv
-p	This is the first paragraph.
-.
-p	This is the second paragraph.
 ```
 
 renders as:
@@ -203,7 +192,7 @@ renders as:
 ### 3.5. Lists (ul, ol, li)
 
 - Tags:
-    - ul, li: Generate an unordered list (`<ul>`). Both tags are treated similarly and create list items (`<li>`).
+    - ul: Generate an unordered list (`<ul>`) and create list items (`<li>`).
     - ol: Generates an ordered list (`<ol>`) and creates list items (`<li>`).
 - Value (2nd column): The content of the list item.
 - Attributes (3rd column): Attributes are applied to the `ul` or `ol` tag.
@@ -214,6 +203,7 @@ renders as:
 
 |Alias|Tag|
 |:--|:--|
+|li|ul|
 |-|ul|
 |*|ul|
 |+|ul|
@@ -228,7 +218,7 @@ ul,Item 2
 
 ```tsv
 ul	Item 1
-ul	Item 2
+li	Item 2
 ```
 
 renders as:
@@ -259,8 +249,9 @@ renders as:
 #### Example 3
 
 ```csv
-li,Item 1
-li,Item 2
+ul,Item 1
+oi,Item 2
+oi,Item 3
 ```
 
 renders as:
@@ -270,29 +261,12 @@ renders as:
     <li>Item 1</li>
     <li>Item 2</li>
 </ul>
+<ol>
+    <li>Item 3</li>
+</ol>
 ```
 
 #### Example 4
-
-```csv
-ul,Item 1
-li,Item 2
-li,Item 3
-```
-
-renders as:
-
-```html
-<ul>
-    <li>Item 1</li>
-    <li>Item 2</li>
-</ul>
-<ul>
-    <li>Item 3</li>
-</ul>
-```
-
-#### Example 5
 
 ```csv
 ul,Item 1
@@ -321,86 +295,27 @@ renders as:
 </ul>
 ```
 
-#### Example 6
-
-```csv
-li,Item 1
-_li,Item 1-1
-_li,Item 1-2
-__li,Item 1-2-1
-li,Item 2
-```
-
-renders as:
-
-```html
-<ul>
-    <li>
-        Item 1
-        <ul>
-            <li>Item 1-1</li>
-            <li>Item 1-2
-                <ul>
-                    <li>Item 1-2-1</li>
-                </ul>
-            </li>
-        </ul>
-    </li>
-    <li>Item 2</li>
-</ul>
-```
-
-### 3.6. Tables (table, thead, tbody, th, td)
+### 3.6. Tables (thead, tbody)
 
 - Tags:
-    - table, tbody, td: These are treated as generating table body (`<tbody>`), rows (`<tr>`), and data cells (`<td>`). Consecutive occurrences of these tags form rows within the same `<tbody>`.
-    - th: Generates rows (`<tr>`) and table header cells (`<th>`) within the table body (`<tbody>`).
+    - tbody: Generates rows (`<tr>`) and data cells (`<td>`) within the table header (`<thead>`). You can use header cells (`<th>`) by using the `th` alias.
     - thead: Generates rows (`<tr>`) and header cells (`<th>`) within the table header (`<thead>`).
 - Value (2nd column): The content of the cell.
-- Column adjustment: You can add suffix numbers to tag names to group elements into rows. Consecutive tags with the same name and the same suffix are treated as belonging to the same row. For example, a sequence of `td0` tags will form a single row. Following the same rule, consecutive `table1` tags will form one row, and consecutive `table2` tags will form a different row. The suffix number is optional; if omitted, consecutive tags (with no suffix) will also form a single row.
+- Column adjustment: You can add suffix numbers to tag names to group elements into rows. Consecutive tags with the same name and the same suffix are treated as belonging to the same row. For example, a sequence of `tbody0` tags will form a single row. Following the same rule, consecutive `tbody1` tags will form one row, and consecutive `tbody2` tags will form a different row. The suffix number is optional; if omitted, consecutive tags (with no suffix) will also form a single row.
 - Attributes (3rd column): Attributes are applied to the `table` tag.
 
 #### Aliases
 
 |Alias|Tag|
 |:--|:--|
-|\||table|
+|table|tbody|
+|tr|tbody|
+|th|tbody|
+|td|tbody|
+|\||tbody|
 |[|thead|
 
 #### Example 1
-
-```csv
-table0,John
-table0,Doe
-table1,Jane
-table1,Doe
-```
-
-```tsv
-table0	John
-table0	Doe
-table1	Jane
-table1	Doe
-```
-
-renders as:
-
-```html
-<table>
-    <tbody>
-        <tr>
-            <td>John</td>
-            <td>Doe</td>
-        </tr>
-        <tr>
-            <td>Jane</td>
-            <td>Doe</td>
-        </tr>
-    </tbody>
-</table>
-```
-
-#### Example 3
 
 ```csv
 tbody0,John
@@ -409,6 +324,13 @@ tbody1,Jane
 tbody1,Doe
 ```
 
+```tsv
+tbody0	John
+tbody0	Doe
+tbody1	Jane
+tbody1	Doe
+```
+
 renders as:
 
 ```html
@@ -426,15 +348,13 @@ renders as:
 </table>
 ```
 
-#### Example 4
+#### Example 2
 
 ```csv
 th,First name
-th,Last name
-td0,John
+td,John
+th0,Last name
 td0,Doe
-td1,Jane
-td1,Doe
 ```
 
 renders as:
@@ -444,21 +364,17 @@ renders as:
     <tbody>
         <tr>
             <th>First name</th>
-            <th>Last name</th>
-        </tr>
-        <tr>
             <td>John</td>
-            <td>Doe</td>
         </tr>
         <tr>
-            <td>Jane</td>
+            <th>Last name</th>
             <td>Doe</td>
         </tr>
     </tbody>
 </table>
 ```
 
-#### Example 5
+#### Example 3
 
 ```csv
 thead,First name
@@ -476,40 +392,6 @@ tbody1,Doe
 |0,Doe
 |1,Jane
 |1,Doe
-```
-
-renders as:
-
-```html
-<table>
-    <thead>
-        <tr>
-            <th>First name</th>
-            <th>Last name</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>John</td>
-            <td>Doe</td>
-        </tr>
-        <tr>
-            <td>Jane</td>
-            <td>Doe</td>
-        </tr>
-    </tbody>
-</table>
-```
-
-#### Example 6
-
-```csv
-thead,First name
-thead,Last name
-td0,John
-td0,Doe
-td,Jane
-td,Doe
 ```
 
 renders as:
@@ -558,7 +440,7 @@ code,"}"
 ```
 
 ```tsv
-code	const message = "Hello, world!";	language=javascript
+code	const message = "Hello, world!"; language=javascript
 code	function hello() {
 code	  console.log(message);
 code	}
@@ -638,7 +520,7 @@ This allows for the use of Markdown-like syntax within the values, such as:
 #### Example 1
 
 ```csv
-p,This is **important** text that includes a `code` snippet. For details, refer to [this link](https://example.com).
+p,"This is **important** text that includes a `code` snippet. For details, refer to [this link](https://example.com)."
 ```
 
 ```tsv

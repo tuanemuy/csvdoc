@@ -8,6 +8,8 @@ See [spec.md](https://github.com/tuanemuy/csvdoc/blob/main/docs/spec.md) for the
 
 ## CLI
 
+You can convert CSVDoc/TSVDoc to HTML using the `csvd` command.
+
 ### Installation
 
 ```bash
@@ -33,15 +35,15 @@ deno add jsr:@tuanemuy/csvdoc
 ### Usage
 
 ```ts
-import { parse } from "@tuanemuy/csvdoc";
+import { transform } from "@tuanemuy/csvdoc";
 
 const csvText = `#,Title
 ,description`;
 const tsvText = `#\tTitle
 \tdescription`;
 
-const csvHtml = parse(csvText);
-const tsvHtml = parse(tsvText, "tsv");
+const csvHtml = transform(csvText);
+const tsvHtml = transform(tsvText, "tsv");
 
 console.log(csvHtml); // <h1>Title</h1><p>description</p>
 console.log(tsvHtml); // <h1>Title</h1><p>description</p>

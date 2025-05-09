@@ -54,6 +54,10 @@ export type CSVRow = {
   depth: number;
 };
 
+/**
+ * Represents an empty row in the CSV document
+ * @property {null} tag - Indicates that this is an empty row
+ */
 export type EmptyRow = {
   tag: null;
 };

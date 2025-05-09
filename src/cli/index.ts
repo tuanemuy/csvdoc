@@ -2,8 +2,8 @@
 
 import { $ } from "../deps.ts";
 import { parseArgs } from "../deps.ts";
-import { parse } from "../parser/index.ts";
-import type { FileType } from "../parser/types.ts";
+import { transform } from "../mod.ts";
+import type { FileType } from "../core/types.ts";
 import pkg from "../../deno.json" with { type: "json" };
 
 // Version information
@@ -129,7 +129,7 @@ async function main() {
       $.logStep(`Converting ${options.fileType.toUpperCase()} to HTML...`);
     }
 
-    const html = parse(input, options.fileType);
+    const html = transform(input, options.fileType);
 
     // Write to output file
     if (options.verbose) {

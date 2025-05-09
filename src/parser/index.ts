@@ -1,24 +1,30 @@
-import { parseCSV } from "./csvParser.ts";
+import { parse as parseCSV } from "../deps.ts";
 import { parseRow } from "./rowParser.ts";
-import { buildHTMLTree, nodesToHTML } from "./htmlGenerator.ts";
-import type { CSVRow, FileType } from "./types.ts";
+import type { CSVDoc, CSVRow, FileType } from "../core/types.ts";
 
 /**
- * Converts CSV/TSV formatted text to HTML
- * @param input Input CSV/TSV formatted text
- * @param fileType File type ("csv" or "tsv"), defaults to "csv"
- * @returns Converted HTML
+ * Parses a CSV or TSV string and converts it to a CSVDoc
+ * @param input - The CSV or TSV string to parse
+ * @param fileType - The type of file (CSV or TSV)
+ * @returns Parsed CSVDoc object
  */
-export function parse(input: string, fileType: FileType = "csv"): string {
+export function parse(input: string, fileType: FileType = "csv"): CSVDoc {
   // Parse CSV/TSV text and convert to a two-dimensional array
-  const rawRows = parseCSV(input, fileType);
+  try {
+    const rawRows = parseCSV(input, {
+      relax_column_count: true,
+      columns: false,
+      skip_empty_lines: true,
+      delimiter: fileType === "tsv" ? "\t" : ",",
+      quote: fileType === "tsv" ? null : '"',
+    });
 
-  // Convert each row to a CSVRow object
-  const rows: CSVRow[] = rawRows.map(parseRow);
-
-  // Build HTMLNode tree from CSVRows
-  const htmlNodes = buildHTMLTree(rows);
-
-  // Convert HTMLNode tree to HTML string
-  return nodesToHTML(htmlNodes);
+    // Convert each row to a CSVRow object
+    return rawRows
+      .map(parseRow)
+      .filter((row: CSVRow): row is CSVRow => row !== null);
+  } catch (e) {
+    console.error(e);
+    return [];
+  }
 }
